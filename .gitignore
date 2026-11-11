@@ -1,0 +1,19 @@
+node_modules
+.env
+dist
+.DS_Store
+server-app/backups
+
+# Données, secrets et fichiers générés (jamais dans le dépôt)
+*.db
+*.db-journal
+*.sqlite
+.env.*
+!.env.example
+server-app/data/
+server-app/storage/
+server-app/src/generated/
+.claude/
+# Ressources 3D : sources tierces et rendus de travail volumineux
+game-assets/sources/
+game-assets/build/

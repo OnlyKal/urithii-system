@@ -1,0 +1,564 @@
+/* ==========================================================================
+   Atlas vivant de la RDC
+   Couleurs : variables --atlas-* définies dans index.css (:root). Aplats
+   unis uniquement, aucun dégradé ni effet de verre : la profondeur vient du
+   socle extrudé, des ombres et des textures dessinées.
+   ========================================================================== */
+
+.site-main.site-main-wide { max-width: none; padding: 0 0 4rem; }
+
+/* ---------- Scène ---------- */
+.atlas-stage {
+  --vx: 0; --vy: 0; --vw: 800; --vh: 760; --k: 1; --s: 1; --scale-w: 34px;
+  --panel-w: min(440px, 45%);
+  position: relative; overflow: hidden;
+  height: calc(100svh - 64px); min-height: 560px;
+  background: var(--atlas-bg);
+  touch-action: none; user-select: none; -webkit-user-select: none;
+  cursor: grab; outline: none;
+}
+.atlas-stage:focus-visible { box-shadow: inset 0 0 0 3px rgba(30, 58, 138, 0.35); border-radius: 0; }
+.atlas-stage.is-dragging { cursor: grabbing; }
+.atlas-stage.is-dragging .atlas-marker { pointer-events: none; }
+
+.atlas-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* Entrée : la carte s'élève, puis les régions et les points apparaissent. */
+.atlas-svg { opacity: 0; transform: translateY(18px) scale(0.985); transition: opacity 700ms var(--ease), transform 1100ms var(--ease); }
+.atlas-stage.is-ready .atlas-svg { opacity: 1; transform: none; }
+.atlas-zone { opacity: 0; transition: opacity 600ms var(--ease); transition-delay: calc(250ms + var(--zi) * 110ms); }
+.atlas-stage.is-ready .atlas-zone { opacity: 1; }
+
+/* ---------- Socle ---------- */
+.atlas-ground-shadow { fill: var(--atlas-ground-shadow); transform: translate(calc(6px / var(--k)), calc(16px / var(--k))); }
+.atlas-extrusion use { fill: var(--atlas-side); transform: translateY(calc(var(--i) * 1.3px / var(--k))); }
+.atlas-extrusion use:first-child { fill: var(--atlas-edge); }
+
+/* ---------- Régions naturelles ---------- */
+.atlas-zone { cursor: pointer; }
+/* Le trait de même couleur comble les interstices entre provinces voisines. */
+.atlas-land { fill: var(--zc); stroke: var(--zc); stroke-width: 0.8; stroke-linejoin: round; }
+.zone-foret { --zc: var(--atlas-foret); }
+.zone-rift { --zc: var(--atlas-rift); }
+.zone-nord { --zc: var(--atlas-nord); }
+.zone-kasai { --zc: var(--atlas-kasai); }
+.zone-katanga { --zc: var(--atlas-katanga); }
+.zone-atlantique { --zc: var(--atlas-atlantique); }
+.atlas-texture, .atlas-veil { pointer-events: none; }
+.atlas-veil { fill: transparent; transition: fill 260ms var(--ease); }
+
+/* Survol : la région s'éclaire. Sélection : les autres régions s'estompent. */
+.atlas-svg.hover-foret .zone-foret .atlas-veil,
+.atlas-svg.hover-rift .zone-rift .atlas-veil,
+.atlas-svg.hover-nord .zone-nord .atlas-veil,
+.atlas-svg.hover-kasai .zone-kasai .atlas-veil,
+.atlas-svg.hover-katanga .zone-katanga .atlas-veil,
+.atlas-svg.hover-atlantique .zone-atlantique .atlas-veil { fill: var(--atlas-highlight); }
+.has-zone .atlas-svg.focus-foret .atlas-zone:not(.zone-foret) .atlas-veil,
+.has-zone .atlas-svg.focus-rift .atlas-zone:not(.zone-rift) .atlas-veil,
+.has-zone .atlas-svg.focus-nord .atlas-zone:not(.zone-nord) .atlas-veil,
+.has-zone .atlas-svg.focus-kasai .atlas-zone:not(.zone-kasai) .atlas-veil,
+.has-zone .atlas-svg.focus-katanga .atlas-zone:not(.zone-katanga) .atlas-veil,
+.has-zone .atlas-svg.focus-atlantique .atlas-zone:not(.zone-atlantique) .atlas-veil { fill: var(--atlas-veil); }
+
+/* Textures (motifs SVG) */
+.atlas-tex-foret { --tx-shade: var(--atlas-foret-shade); --tx-crown: var(--atlas-foret-crown); --tx-light: var(--atlas-foret-light); }
+.atlas-tex-rift { --tx-shade: var(--atlas-rift-shade); --tx-crown: var(--atlas-rift-crown); --tx-light: var(--atlas-rift-light); }
+.atlas-tex-nord { --tx-shade: var(--atlas-nord-shade); --tx-crown: var(--atlas-nord-crown); --tx-light: var(--atlas-nord); --tx-grass: var(--atlas-nord-grass); }
+.atlas-tex-kasai { --tx-shade: var(--atlas-kasai-shade); --tx-crown: var(--atlas-kasai-crown); --tx-light: var(--atlas-kasai); --tx-grass: var(--atlas-kasai-grass); }
+.atlas-tex-katanga { --tx-shade: var(--atlas-katanga-shade); --tx-crown: var(--atlas-katanga-crown); --tx-light: var(--atlas-katanga); --tx-grass: var(--atlas-katanga-grass); }
+.atlas-tex-atlantique { --tx-shade: var(--atlas-atlantique-shade); --tx-crown: var(--atlas-atlantique-crown); --tx-light: var(--atlas-atlantique); --tx-grass: var(--atlas-atlantique-grass); }
+.tx-shade { fill: var(--tx-shade); }
+.tx-crown { fill: var(--tx-crown); }
+.tx-light { fill: var(--tx-light); opacity: 0.7; }
+.tx-grass { fill: none; stroke: var(--tx-grass); stroke-width: 0.32; stroke-linecap: round; }
+.tx-trunk { stroke: var(--atlas-trunk); stroke-width: 0.4; stroke-linecap: round; }
+
+.atlas-province-lines path { fill: none; stroke: var(--atlas-province-line); stroke-width: 0.8; vector-effect: non-scaling-stroke; pointer-events: none; stroke-linejoin: round; }
+.atlas-coast { pointer-events: none; }
+.atlas-coast path { fill: none; stroke: var(--atlas-edge); stroke-width: 3; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+
+/* ---------- Eaux ---------- */
+.atlas-water { pointer-events: none; }
+.atlas-lake { fill: var(--atlas-lake); stroke: var(--atlas-lake-edge); stroke-width: 0.9; vector-effect: non-scaling-stroke; }
+.atlas-river { fill: none; stroke: var(--atlas-river); stroke-linecap: round; stroke-linejoin: round; stroke-width: calc(var(--w) * (0.45px + 0.85px / var(--k))); }
+.atlas-river-flow {
+  fill: none; stroke: var(--atlas-river-flow); stroke-linecap: round; opacity: 0.85;
+  stroke-width: calc(var(--w) * (0.14px + 0.3px / var(--k)));
+  stroke-dasharray: 1.6 10; animation: atlas-flow 2.4s linear infinite;
+}
+@keyframes atlas-flow { to { stroke-dashoffset: -11.6; } }
+
+.atlas-river-labels text {
+  font-size: calc(10.5px / var(--k)); font-style: italic; font-weight: 600; letter-spacing: 0.06em;
+  fill: var(--atlas-river-label); stroke: #fff; stroke-width: calc(2.6px / var(--k)); paint-order: stroke; stroke-linejoin: round;
+  pointer-events: none; opacity: 0; transition: opacity 400ms var(--ease);
+}
+.atlas-stage.level-1 .atlas-river-labels text, .atlas-stage.level-2 .atlas-river-labels text { opacity: 1; }
+
+/* ---------- Parcs nationaux ---------- */
+.atlas-park { cursor: pointer; }
+.atlas-park-fill {
+  fill: var(--park); fill-opacity: 0.5;
+  stroke: var(--atlas-park-edge); stroke-width: 1.8; stroke-dasharray: 5 3; stroke-linejoin: round; vector-effect: non-scaling-stroke;
+  transition: fill-opacity 220ms var(--ease);
+}
+.atlas-park-hatch { pointer-events: none; transition: opacity 220ms var(--ease); }
+.atlas-park-hatch-tile line { stroke: var(--atlas-park-edge); stroke-width: 0.55; opacity: 0.45; }
+.atlas-park:hover .atlas-park-fill { fill-opacity: 0.72; }
+.atlas-svg.park-focus .atlas-park-fill { fill-opacity: 0.2; }
+.atlas-svg.park-focus .atlas-park-hatch { opacity: 0.4; }
+.atlas-svg.no-parks .atlas-parks { display: none; }
+
+/* ---------- Routes nationales ---------- */
+.atlas-road { cursor: pointer; transition: opacity 250ms var(--ease); }
+.atlas-road path { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.atlas-road-hit { stroke: transparent; stroke-width: 12; pointer-events: stroke; }
+.atlas-road-casing { stroke: var(--atlas-road-casing); stroke-width: 3.4; pointer-events: none; }
+.atlas-road-line { stroke: var(--atlas-road); stroke-width: 1.6; pointer-events: none; transition: stroke 200ms var(--ease); }
+.atlas-road:hover .atlas-road-line { stroke: var(--atlas-road-active); }
+.atlas-road:hover .atlas-road-casing { stroke-width: 4.6; }
+.atlas-svg.no-roads .atlas-roads { display: none; }
+.atlas-svg.road-focus .atlas-road { opacity: 0.3; }
+
+/* ---------- Reliefs ---------- */
+.atlas-reliefs { pointer-events: none; }
+.relief-light { fill: var(--atlas-rock-light); }
+.relief-dark { fill: var(--atlas-rock-dark); }
+.relief-snow { fill: var(--atlas-snow); }
+.relief-shadow { fill: var(--atlas-relief-shadow); }
+.relief-lava { fill: var(--atlas-lava); }
+.relief-glow { fill: var(--atlas-lava); opacity: 0.35; animation: atlas-lava 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes atlas-lava { 50% { opacity: 0.08; transform: scale(1.5); } }
+
+/* ---------- Calque des repères (taille constante à l'écran) ---------- */
+.atlas-overlay { position: absolute; inset: 0; pointer-events: none; }
+.atlas-overlay > * {
+  position: absolute;
+  left: calc((var(--px) - var(--vx)) / var(--vw) * 100%);
+  top: calc((var(--py) - var(--vy)) / var(--vh) * 100%);
+}
+
+.atlas-zone-label {
+  transform: translate(-50%, -50%);
+  font-size: 0.68rem; font-weight: 650; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap;
+  color: var(--atlas-ink); background: rgba(255, 255, 255, 0.86); border-radius: 999px; padding: 0.2rem 0.65rem;
+  box-shadow: var(--shadow-sm);
+  transition: opacity 400ms var(--ease), transform 400ms var(--ease), background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.atlas-zone-label.is-active { background: var(--atlas-ink); color: #fff; }
+.atlas-stage.level-1 .atlas-zone-label, .atlas-stage.level-2 .atlas-zone-label { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+
+.atlas-city {
+  display: flex; align-items: center; gap: 0.3rem; transform: translate(-4px, -50%);
+  font-size: 0.72rem; font-weight: 600; color: var(--atlas-ink); white-space: nowrap;
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff;
+  opacity: 0; transition: opacity 400ms var(--ease);
+}
+.atlas-city i { width: 7px; height: 7px; border-radius: 50%; background: #fff; border: 2px solid var(--atlas-ink); flex-shrink: 0; }
+.atlas-city.is-capital { font-weight: 750; opacity: 1; }
+.atlas-city.is-capital i { width: 9px; height: 9px; background: var(--atlas-ink); border-color: #fff; box-shadow: 0 0 0 1px var(--atlas-ink); }
+.atlas-stage.level-1 .atlas-city, .atlas-stage.level-2 .atlas-city { opacity: 1; }
+
+.atlas-park-label {
+  pointer-events: none; opacity: 0; transform: translate(-50%, -50%);
+  display: inline-flex; align-items: center; gap: 0.3rem; min-height: 0; padding: 0.15rem 0.5rem 0.15rem 0.4rem;
+  background: #fff; color: var(--atlas-ink); border: 0; border-left: 3px solid var(--park); border-radius: 6px;
+  font-size: 0.7rem; font-weight: 650; white-space: nowrap; box-shadow: var(--shadow-sm);
+  transition: opacity 400ms var(--ease), background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.atlas-park-label .icon { color: var(--park); }
+.atlas-park-label:hover, .atlas-park-label.is-active { background: var(--park); color: #fff; }
+.atlas-park-label:hover .icon, .atlas-park-label.is-active .icon { color: #fff; }
+.atlas-park-label:active { transform: translate(-50%, -50%); }
+.atlas-stage.level-1 .atlas-park-label, .atlas-stage.level-2 .atlas-park-label { opacity: 1; pointer-events: auto; }
+
+.atlas-shield {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 0; padding: 0.05rem 0.35rem; border-radius: 5px;
+  background: #fff; color: var(--atlas-ink); border: 1.5px solid var(--atlas-road-casing); box-shadow: none;
+  font-size: 0.64rem; font-weight: 800; letter-spacing: 0.02em; line-height: 1.3; white-space: nowrap; flex-shrink: 0;
+}
+.atlas-road-shield { transform: translate(-50%, -50%); pointer-events: auto; box-shadow: var(--shadow-sm); cursor: pointer; transition: background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease); }
+.atlas-road-shield:hover, .atlas-road-shield.is-active { background: var(--atlas-road-casing); color: #fff; border-color: var(--atlas-road-casing); }
+.atlas-road-shield:active { transform: translate(-50%, -50%); }
+.atlas-sheet h2 .atlas-shield { font-size: 0.8rem; vertical-align: 0.2em; }
+.atlas-road-list .atlas-region { gap: 0.55rem; }
+.atlas-road-towns { font-size: 0.82rem; color: var(--text); }
+
+/* ---------- Points d'intérêt ---------- */
+.atlas-marker {
+  --m: 18px; --cat: var(--atlas-faune);
+  pointer-events: auto; transform: translate(-50%, -50%);
+  width: var(--m); height: var(--m); min-height: 0; padding: 0;
+  border: none; border-radius: 50%; background: transparent; box-shadow: none;
+  display: grid; place-items: center; cursor: pointer;
+  transition: width 300ms var(--ease), height 300ms var(--ease), opacity 300ms var(--ease);
+  animation: atlas-pop 500ms var(--ease) backwards; animation-delay: calc(900ms + min(var(--n) * 20ms, 500ms));
+}
+.atlas-marker:hover, .atlas-marker:active { background: transparent; transform: translate(-50%, -50%); }
+.atlas-marker:focus-visible { box-shadow: none; }
+.atlas-marker:focus-visible .atlas-marker-disc { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--cat); }
+.atlas-marker.cat-flore { --cat: var(--atlas-flore); }
+.atlas-marker.cat-eaux { --cat: var(--atlas-eaux); }
+.atlas-marker.cat-reliefs { --cat: var(--atlas-reliefs); }
+.atlas-marker.cat-barrages { --cat: var(--atlas-barrages); }
+.atlas-marker.cat-barrages .atlas-marker-disc { border-radius: 30%; }
+.atlas-stage.level-1 .atlas-marker { --m: 32px; }
+.atlas-stage.level-2 .atlas-marker { --m: 50px; }
+@keyframes atlas-pop { from { opacity: 0; transform: translate(-50%, -30%) scale(0.4); } }
+
+.atlas-marker-disc {
+  position: absolute; inset: 0; border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center;
+  background: var(--cat); color: #fff; border: 2px solid #fff;
+  box-shadow: 0 3px 8px rgba(23, 32, 51, 0.32);
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+.atlas-marker-disc .icon { width: 15px; height: 15px; }
+.atlas-stage.level-0 .atlas-marker-disc .icon { display: none; }
+.atlas-marker-disc img { width: 100%; height: 100%; object-fit: cover; animation: fade-in 400ms var(--ease) both; }
+.atlas-stage.level-2 .atlas-marker-disc { border: 3px solid var(--cat); outline: 2px solid #fff; outline-offset: -1px; }
+.atlas-marker:hover .atlas-marker-disc { transform: scale(1.14); box-shadow: 0 6px 16px rgba(23, 32, 51, 0.36); }
+
+.atlas-marker.is-selected { z-index: 2; }
+.atlas-marker.is-selected .atlas-marker-disc { transform: scale(1.18); }
+.atlas-marker.is-selected::before {
+  content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--cat);
+  animation: atlas-ring 1.8s var(--ease) infinite;
+}
+@keyframes atlas-ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(2.1); opacity: 0; } }
+
+.atlas-marker.is-hidden { opacity: 0; pointer-events: none; }
+.atlas-marker.is-hidden .atlas-marker-disc { transform: scale(0.3); }
+
+.atlas-marker-label {
+  position: absolute; top: calc(100% + 6px); left: 50%; transform: translate(-50%, -3px);
+  background: #fff; color: var(--atlas-ink); font-size: 0.74rem; font-weight: 650; white-space: nowrap;
+  padding: 0.15rem 0.5rem; border-radius: 6px; box-shadow: var(--shadow-md);
+  opacity: 0; pointer-events: none; transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+}
+.atlas-marker:hover .atlas-marker-label, .atlas-marker:focus-visible .atlas-marker-label, .atlas-marker.is-selected .atlas-marker-label,
+.atlas-stage.level-2 .atlas-marker:not(.is-crowded) .atlas-marker-label { opacity: 1; transform: translate(-50%, 0); }
+.atlas-marker:hover, .atlas-marker:focus-visible { z-index: 3; }
+
+/* ---------- Panneaux (aplats blancs) ---------- */
+.atlas-ui { position: absolute; z-index: 5; cursor: default; user-select: text; -webkit-user-select: text; touch-action: pan-y; }
+
+.atlas-explorer {
+  top: 16px; left: 16px; width: 300px; max-height: calc(100% - 32px); overflow: auto;
+  background: var(--bg); border-radius: var(--radius-modal); box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+  padding: 1rem 1rem 1.1rem;
+  animation: atlas-slide-right 600ms var(--ease) 200ms backwards;
+  scrollbar-width: thin; overscroll-behavior: contain;
+}
+@keyframes atlas-slide-right { from { opacity: 0; transform: translateX(-12px); } }
+.atlas-explorer-head { display: flex; align-items: center; justify-content: space-between; margin: -0.25rem -0.4rem 0 0; }
+.atlas-explorer-head .eyebrow { margin: 0; color: var(--mint-deep); }
+.atlas-explorer-toggle { min-height: 32px; width: 32px; padding: 0; }
+.atlas-explorer h1 { font-size: 1.32rem; margin: 0.35rem 0 0.5rem; letter-spacing: -0.02em; }
+.atlas-stage.explorer-closed .atlas-explorer { width: auto; max-width: 300px; }
+.atlas-stage.explorer-closed .atlas-explorer h1 { margin-bottom: 0; font-size: 1.05rem; }
+.atlas-lead { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 0.9rem; }
+
+.atlas-layers { display: grid; gap: 0.4rem; }
+.atlas-layer {
+  --cat: var(--atlas-faune);
+  justify-content: flex-start; gap: 0.65rem; width: 100%; text-align: left; white-space: normal;
+  background: var(--bg); color: var(--text); border: 1px solid var(--border); box-shadow: none;
+  padding: 0.45rem 0.55rem; min-height: 0; border-radius: var(--radius-card);
+}
+.atlas-layer:hover { background: var(--bg-subtle); color: var(--text); border-color: var(--border-strong); }
+.atlas-layer.cat-flore { --cat: var(--atlas-flore); }
+.atlas-layer.cat-eaux { --cat: var(--atlas-eaux); }
+.atlas-layer.cat-reliefs { --cat: var(--atlas-reliefs); }
+.atlas-layer.cat-barrages { --cat: var(--atlas-barrages); }
+.atlas-layer.cat-routes { --cat: var(--atlas-road-casing); }
+.atlas-layer.cat-parcs { --cat: var(--atlas-parcs); }
+.atlas-layer-icon { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--bg-muted); color: var(--text-muted); flex-shrink: 0; transition: background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease); }
+.atlas-layer.is-on .atlas-layer-icon { background: var(--cat); color: #fff; }
+.atlas-layer-text { display: grid; flex: 1; font-size: 0.86rem; font-weight: 600; line-height: 1.25; }
+.atlas-layer-text small { font-weight: 450; color: var(--text-muted); font-size: 0.74rem; }
+.atlas-layer-count { font-size: 0.74rem; font-weight: 650; color: var(--text-muted); background: var(--bg-muted); border-radius: 5px; padding: 0.05rem 0.4rem; }
+.atlas-layer:not(.is-on) .atlas-layer-text { color: var(--text-muted); }
+.atlas-layer:not(.is-on) .atlas-layer-text small { text-decoration: line-through; }
+
+.atlas-regions { margin-top: 1rem; }
+.atlas-regions h2 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin: 0 0 0.35rem; font-weight: 650; }
+.atlas-regions ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.1rem; }
+.atlas-region {
+  width: 100%; justify-content: flex-start; gap: 0.6rem; background: transparent; border-color: transparent; box-shadow: none;
+  color: var(--text); font-weight: 500; font-size: 0.86rem; padding: 0.35rem 0.45rem; min-height: 32px; white-space: normal; text-align: left;
+}
+.atlas-region:hover, .atlas-region.is-active { background: var(--bg-subtle); color: var(--text); border-color: transparent; }
+.atlas-region.is-active { font-weight: 650; }
+
+.atlas-swatch { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; display: inline-block; box-shadow: inset 0 0 0 1px rgba(23, 32, 51, 0.12); }
+.atlas-swatch.zone-foret { background: var(--atlas-foret); }
+.atlas-swatch.zone-rift { background: var(--atlas-rift); }
+.atlas-swatch.zone-nord { background: var(--atlas-nord); }
+.atlas-swatch.zone-kasai { background: var(--atlas-kasai); }
+.atlas-swatch.zone-katanga { background: var(--atlas-katanga); }
+.atlas-swatch.zone-atlantique { background: var(--atlas-atlantique); }
+
+.atlas-tour { width: 100%; margin-top: 1rem; background: var(--mint-deep); border-color: var(--mint-deep); padding: 0.6rem 0.9rem; }
+.atlas-tour > span { display: grid; text-align: left; }
+.atlas-tour small { font-weight: 450; font-size: 0.74rem; opacity: 0.85; }
+.atlas-tour:hover { background: var(--mint-deep-hover); border-color: var(--mint-deep-hover); }
+
+/* Commandes */
+.atlas-controls { right: 16px; bottom: 16px; display: flex; align-items: flex-end; gap: 0.75rem; transition: right 450ms var(--ease); }
+.atlas-stage.has-panel .atlas-controls { right: calc(var(--panel-w) + 32px); }
+.atlas-zoom { display: grid; background: var(--bg); border-radius: var(--radius-card); box-shadow: var(--shadow-md); border: 1px solid var(--border); overflow: hidden; }
+.atlas-zoom button { background: var(--bg); color: var(--text); border: 0; border-radius: 0; width: 40px; height: 40px; min-height: 0; padding: 0; box-shadow: none; }
+.atlas-zoom button + button { border-top: 1px solid var(--border); }
+.atlas-zoom button:hover { background: var(--bg-subtle); color: var(--blue); }
+.atlas-scale { display: grid; gap: 2px; font-size: 0.7rem; font-weight: 600; color: var(--atlas-ink); background: rgba(255, 255, 255, 0.86); padding: 0.3rem 0.5rem 0.25rem; border-radius: 6px; }
+.atlas-scale-bar { display: block; width: var(--scale-w); height: 5px; border: 2px solid var(--atlas-ink); border-top: 0; }
+
+.atlas-hint {
+  left: 50%; bottom: 18px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 0.5rem; margin: 0;
+  background: var(--bg); color: var(--text); border-radius: 999px; box-shadow: var(--shadow-md);
+  padding: 0.4rem 0.9rem; font-size: 0.84rem; font-weight: 600; white-space: nowrap; pointer-events: none;
+  animation: fade-in 200ms var(--ease) both;
+}
+.atlas-hint small { color: var(--text-muted); font-weight: 450; }
+.atlas-hint.is-help { font-weight: 500; color: var(--text-muted); animation-delay: 1.6s; }
+
+/* ---------- Visite documentaire ---------- */
+.atlas-tour-fab {
+  width: 44px; height: 44px; min-height: 0; padding: 0; border-radius: 50%;
+  background: var(--mint-deep); border-color: var(--mint-deep); box-shadow: var(--shadow-md);
+}
+.atlas-tour-fab:hover { background: var(--mint-deep-hover); border-color: var(--mint-deep-hover); }
+
+.atlas-tourbar {
+  left: calc((100% - var(--panel-w) - 32px) / 2); bottom: 18px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 0.25rem; padding: 0.35rem 0.5rem;
+  background: var(--atlas-ink); color: #fff; border-radius: 999px; box-shadow: var(--shadow-lg);
+  animation: atlas-tourbar-in 500ms var(--ease) both;
+}
+@keyframes atlas-tourbar-in { from { opacity: 0; transform: translate(-50%, 12px); } }
+.atlas-tourbar button { width: 36px; height: 36px; min-height: 0; padding: 0; border-radius: 50%; background: transparent; border: 0; color: #fff; box-shadow: none; }
+.atlas-tourbar button:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.atlas-tourbar button:disabled { opacity: 0.35; }
+.atlas-tourbar .atlas-tour-play { width: 42px; height: 42px; background: #fff; color: var(--atlas-ink); }
+.atlas-tourbar .atlas-tour-play:hover { background: var(--mint-soft); color: var(--atlas-ink); }
+.atlas-tour-progress { display: grid; gap: 0.25rem; width: 150px; margin: 0 0.5rem; }
+.atlas-tour-step { font-size: 0.72rem; font-weight: 600; color: rgba(255, 255, 255, 0.75); font-variant-numeric: tabular-nums; }
+.atlas-tour-track { height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.2); overflow: hidden; }
+.atlas-tour-track i { display: block; height: 100%; width: 100%; background: var(--mint); transform-origin: left; animation: atlas-progress var(--d) linear both; }
+.atlas-tour-track i.is-paused { animation-play-state: paused; }
+@keyframes atlas-progress { from { transform: scaleX(0); } }
+
+/* Titre façon documentaire, en bas à gauche de l'espace libre. */
+.atlas-doc-title {
+  left: 28px; bottom: 84px; max-width: min(520px, calc(100% - var(--panel-w) - 80px));
+  display: grid; gap: 0.15rem; pointer-events: none; color: #fff;
+  text-shadow: 0 1px 2px rgba(12, 18, 28, 0.55), 0 2px 12px rgba(12, 18, 28, 0.45);
+}
+.atlas-doc-title small { font-size: 0.72rem; font-weight: 650; text-transform: uppercase; letter-spacing: 0.18em; opacity: 0; animation: atlas-doc-in 900ms var(--ease) 500ms forwards; }
+.atlas-doc-title strong { font-size: clamp(1.8rem, 1.2rem + 2vw, 2.8rem); font-weight: 750; letter-spacing: -0.02em; line-height: 1.05; opacity: 0; animation: atlas-doc-in 1100ms var(--ease) 700ms forwards; }
+.atlas-doc-title em { font-size: 0.95rem; font-style: normal; opacity: 0; animation: atlas-doc-in 900ms var(--ease) 1000ms forwards; }
+@keyframes atlas-doc-in { from { opacity: 0; transform: translateY(10px); letter-spacing: 0.04em; } to { opacity: 0.96; transform: none; } }
+
+/* Pendant la visite : lent travelling sur la photographie de la fiche. */
+.atlas-stage.is-touring .atlas-photo img.is-loaded { animation: kenburns 34s ease-out forwards; }
+
+.atlas-stage.is-touring .atlas-marker:not(.is-selected) { opacity: 0.75; }
+/* La barre de lecture remplace la navigation de la fiche. */
+.atlas-stage.is-touring .atlas-sheet-nav { display: none; }
+
+/* ---------- Fiche ---------- */
+.atlas-panel {
+  top: 16px; right: 16px; bottom: 16px; width: var(--panel-w);
+  background: var(--bg); border-radius: var(--radius-modal); box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+  overflow: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  animation: atlas-panel-in 450ms var(--ease) both;
+}
+@keyframes atlas-panel-in { from { opacity: 0; transform: translateX(24px); } }
+.atlas-panel-close {
+  position: absolute; top: 12px; right: 12px; z-index: 3; width: 36px; height: 36px; min-height: 0; padding: 0; border-radius: 50%;
+  background: var(--bg); color: var(--text); border: 0; box-shadow: var(--shadow-md);
+}
+.atlas-panel-close:hover { background: var(--bg-subtle); color: var(--text); }
+
+.atlas-sheet { display: flex; flex-direction: column; min-height: 100%; }
+.atlas-photo { position: relative; margin: 0; aspect-ratio: 16 / 11; background: var(--bg-muted); overflow: hidden; flex-shrink: 0; }
+.atlas-photo img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.06); transition: opacity 600ms var(--ease), transform 1600ms var(--ease); }
+.atlas-photo img.is-loaded { opacity: 1; transform: none; }
+.atlas-photo-chip {
+  position: absolute; left: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 0.35rem;
+  background: var(--atlas-faune); color: #fff; font-size: 0.76rem; font-weight: 650; padding: 0.25rem 0.6rem; border-radius: 999px;
+}
+.cat-flore .atlas-photo-chip { background: var(--atlas-flore); }
+.cat-eaux .atlas-photo-chip { background: var(--atlas-eaux); }
+.cat-reliefs .atlas-photo-chip { background: var(--atlas-reliefs); }
+.cat-barrages .atlas-photo-chip { background: var(--atlas-barrages); }
+.atlas-photo-chip.road-chip { background: var(--atlas-road-casing); }
+.cat-routes .atlas-photo.is-empty { background: var(--atlas-road-casing); }
+.atlas-gallery { display: flex; gap: 0.4rem; padding: 0.6rem 1.25rem 0; overflow-x: auto; }
+.atlas-gallery button { padding: 0; min-height: 0; width: 72px; height: 50px; flex-shrink: 0; border-radius: 6px; overflow: hidden; border: 2px solid transparent; background: var(--bg-muted); box-shadow: none; opacity: 0.7; }
+.atlas-gallery button:hover { background: var(--bg-muted); opacity: 1; }
+.atlas-gallery button.is-active { border-color: var(--atlas-road-casing); opacity: 1; }
+.atlas-gallery img { width: 100%; height: 100%; object-fit: cover; }
+.atlas-itinerary { list-style: none; margin: 0; padding: 0 0 0 0.2rem; }
+.atlas-itinerary li { position: relative; padding: 0 0 0.45rem 1.3rem; font-size: 0.88rem; font-weight: 500; }
+.atlas-itinerary li::before { content: ''; position: absolute; left: 0; top: 0.4em; width: 9px; height: 9px; border-radius: 50%; background: #fff; border: 2px solid var(--atlas-road-casing); }
+.atlas-itinerary li:not(:last-child)::after { content: ''; position: absolute; left: 5px; top: 1.05em; bottom: -0.25em; width: 2px; background: var(--atlas-road); }
+.atlas-itinerary li:first-child::before, .atlas-itinerary li:last-child::before { background: var(--atlas-road-casing); }
+.atlas-road-note { font-size: 0.74rem; color: var(--text-muted); margin-top: 0.75rem; }
+.atlas-photo-chip.zone-chip { background: var(--atlas-ink); }
+.atlas-photo-chip.park-chip { background: var(--park); }
+.atlas-photo-expand {
+  position: absolute; right: 12px; bottom: 12px; width: 34px; height: 34px; min-height: 0; padding: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92); color: var(--text); border: 0; box-shadow: var(--shadow-sm);
+}
+.atlas-photo-expand:hover { background: #fff; color: var(--blue); }
+
+.atlas-sheet-body { padding: 1.1rem 1.25rem 0.5rem; flex: 1; animation: atlas-rise 500ms var(--ease) 120ms backwards; }
+@keyframes atlas-rise { from { opacity: 0; transform: translateY(8px); } }
+.atlas-sheet-eyebrow { display: flex; align-items: flex-start; gap: 0.35rem; font-size: 0.78rem; color: var(--text-muted); margin: 0 0 0.35rem; font-weight: 500; }
+.atlas-sheet-eyebrow .icon { margin-top: 0.15rem; }
+.atlas-sheet h2 { font-size: 1.45rem; margin: 0 0 0.15rem; letter-spacing: -0.02em; }
+.atlas-latin { font-style: italic; color: var(--text-muted); margin: 0 0 0.75rem; font-size: 0.9rem; }
+.atlas-subtitle { color: var(--text-muted); margin: 0 0 0.75rem; font-size: 0.9rem; }
+.atlas-badges { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.85rem; }
+.atlas-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.74rem; font-weight: 650; border-radius: 999px; padding: 0.2rem 0.6rem; border: 1px solid; }
+.atlas-badge.endemic { background: var(--mint-soft); color: var(--mint-text); border-color: var(--mint-border); }
+.atlas-badge.unesco { background: var(--blue-light); color: var(--blue); border-color: var(--blue-mid); }
+.atlas-badge.iucn { background: var(--orange-soft); color: var(--orange-text); border-color: var(--orange-border); }
+.atlas-badge.iucn-LC { background: var(--bg-subtle); color: var(--text-muted); border-color: var(--border); }
+.atlas-badge.iucn-CR { background: var(--orange); color: var(--atlas-ink); border-color: var(--orange); }
+.atlas-summary { font-size: 1.02rem; font-weight: 550; color: var(--text); line-height: 1.5; }
+.atlas-sheet-body > p { font-size: 0.92rem; line-height: 1.65; }
+
+.atlas-facts { display: grid; gap: 0; margin: 1rem 0; border-top: 1px solid var(--border); }
+.atlas-facts > div { display: grid; grid-template-columns: 8.5rem 1fr; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.atlas-facts dt { color: var(--text-muted); font-weight: 500; }
+.atlas-facts dd { margin: 0; font-weight: 550; }
+
+.atlas-zone-link {
+  width: 100%; justify-content: flex-start; gap: 0.7rem; text-align: left; white-space: normal;
+  background: var(--bg-subtle); color: var(--text); border: 1px solid var(--border); box-shadow: none; padding: 0.6rem 0.75rem; border-radius: var(--radius-card);
+}
+.atlas-zone-link:hover { background: var(--blue-light); color: var(--text); border-color: var(--blue-mid); }
+.atlas-zone-link > span:nth-child(2) { display: grid; flex: 1; font-weight: 600; font-size: 0.9rem; }
+.atlas-zone-link small { font-weight: 500; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.atlas-zone-link .atlas-swatch { width: 28px; height: 28px; border-radius: 7px; }
+
+.atlas-neighbours { margin-top: 1.25rem; }
+.atlas-unesco-icon { margin-left: auto; color: var(--blue); }
+.atlas-tag-group { margin-top: 1rem; }
+.atlas-tag-group h3 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin: 0 0 0.45rem; font-weight: 650; }
+.atlas-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.atlas-tag {
+  display: inline-flex; align-items: center; gap: 0.15rem; min-height: 0; padding: 0.22rem 0.6rem; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 500; line-height: 1.3; white-space: normal; text-align: left;
+  background: var(--bg-subtle); color: var(--text); border: 1px solid var(--border); box-shadow: none;
+}
+.atlas-tag.is-link { color: var(--mint-text); background: var(--mint-soft); border-color: var(--mint-border); font-weight: 600; }
+.atlas-tag.is-link:hover { background: var(--mint-tint); color: var(--mint-text); border-color: var(--mint); }
+.atlas-neighbours h3 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin: 0 0 0.5rem; font-weight: 650; }
+.atlas-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 0.5rem; }
+.atlas-thumb {
+  display: grid; padding: 0; min-height: 0; gap: 0; background: var(--bg); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--radius-card); overflow: hidden; box-shadow: none; text-align: left; white-space: normal;
+}
+.atlas-thumb:hover { background: var(--bg); color: var(--text); border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+.atlas-thumb img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform 500ms var(--ease); }
+.atlas-thumb:hover img { transform: scale(1.05); }
+.atlas-thumb span { font-size: 0.78rem; font-weight: 600; padding: 0.4rem 0.5rem; line-height: 1.3; }
+
+.atlas-credit { font-size: 0.72rem; color: var(--text-muted); margin: 1.25rem 0 0.75rem; line-height: 1.5; }
+.atlas-credit a { display: inline-flex; align-items: center; gap: 0.2rem; color: var(--text-muted); }
+.atlas-credit a:hover { color: var(--blue); }
+.atlas-credit-note { display: block; font-style: italic; margin-bottom: 0.2rem; }
+
+.atlas-sheet-nav {
+  position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  padding: 0.75rem 1.25rem; background: var(--bg); border-top: 1px solid var(--border);
+}
+.atlas-sheet-count { font-size: 0.8rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* ---------- Agrandissement de la photo ---------- */
+.atlas-lightbox { position: fixed; inset: 0; z-index: 120; background: var(--atlas-lightbox); display: grid; place-items: center; padding: 3.5rem 1rem 1rem; animation: fade-in 220ms var(--ease) both; }
+.atlas-lightbox figure { margin: 0; display: grid; gap: 0.75rem; max-width: min(1280px, 100%); max-height: 100%; }
+.atlas-lightbox img { max-height: calc(100vh - 9rem); width: auto; max-width: 100%; margin: 0 auto; border-radius: var(--radius-card); animation: pop-in 320ms var(--ease) both; }
+.atlas-lightbox figcaption { color: #fff; text-align: center; }
+.atlas-lightbox figcaption strong { font-size: 1rem; }
+.atlas-lightbox .atlas-credit { color: rgba(255, 255, 255, 0.75); margin: 0.25rem 0 0; }
+.atlas-lightbox .atlas-credit a { color: rgba(255, 255, 255, 0.85); }
+.atlas-lightbox-close { position: absolute; top: 14px; right: 14px; width: 42px; height: 42px; min-height: 0; padding: 0; border-radius: 50%; background: #fff; color: var(--text); border: 0; }
+.atlas-lightbox-close:hover { background: var(--bg-subtle); color: var(--text); }
+
+/* ---------- Sous la carte : catalogue et crédits ---------- */
+.atlas-catalogue { max-width: var(--page-width); margin: 0 auto; padding: 3rem 16px 0; }
+.atlas-catalogue-group { margin-top: 2.25rem; }
+.atlas-catalogue-group h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.atlas-cat-icon { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff; background: var(--atlas-faune); }
+.atlas-cat-icon.cat-flore { background: var(--atlas-flore); }
+.atlas-cat-icon.cat-eaux { background: var(--atlas-eaux); }
+.atlas-cat-icon.cat-reliefs { background: var(--atlas-reliefs); }
+.atlas-cat-icon.cat-barrages { background: var(--atlas-barrages); }
+.atlas-cat-icon.cat-routes { background: var(--atlas-road-casing); }
+.atlas-thumb-empty.cat-routes { background: var(--atlas-road-casing); }
+.atlas-thumb-empty.cat-barrages { background: var(--atlas-barrages); }
+.atlas-shield-large { font-size: 1.1rem; padding: 0.2rem 0.6rem; border-width: 2px; }
+/* Sans photographie : aplat de la couleur de catégorie et icône. */
+.atlas-photo.is-empty { display: grid; place-items: center; align-content: center; gap: 0.5rem; background: var(--atlas-barrages); color: rgba(255, 255, 255, 0.85); }
+.cat-faune .atlas-photo.is-empty { background: var(--atlas-faune); }
+.cat-flore .atlas-photo.is-empty { background: var(--atlas-flore); }
+.cat-eaux .atlas-photo.is-empty { background: var(--atlas-eaux); }
+.atlas-photo.is-empty figcaption { font-size: 0.78rem; font-weight: 550; }
+.atlas-thumb-empty { display: grid; place-items: center; width: 100%; height: 100%; aspect-ratio: 4 / 3; color: #fff; background: var(--atlas-barrages); }
+.atlas-thumb-empty.cat-faune { background: var(--atlas-faune); }
+.atlas-thumb-empty.cat-flore { background: var(--atlas-flore); }
+.atlas-thumb-empty.cat-eaux { background: var(--atlas-eaux); }
+.atlas-thumb-empty.cat-reliefs { background: var(--atlas-reliefs); }
+.atlas-cat-icon.cat-parcs { background: var(--atlas-parcs); }
+.atlas-card-body em .icon { display: inline; vertical-align: -1px; }
+.atlas-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+.atlas-card {
+  display: grid; grid-template-rows: auto 1fr; align-content: start; text-decoration: none; color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-card);
+  overflow: hidden; background: var(--bg); transition: box-shadow var(--t-med) var(--ease), transform var(--t-med) var(--ease), border-color var(--t-med) var(--ease);
+}
+.atlas-card:hover { color: var(--text); box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: var(--border-strong); }
+.atlas-card-media { aspect-ratio: 3 / 2; overflow: hidden; background: var(--bg-muted); }
+.atlas-card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 700ms var(--ease); }
+.atlas-card:hover .atlas-card-media img { transform: scale(1.05); }
+.atlas-card-body { padding: 0.8rem 0.95rem 1rem; }
+.atlas-card-body strong { display: block; font-size: 0.98rem; }
+.atlas-card-body em { display: block; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.4rem; }
+.atlas-card-body p { margin: 0; font-size: 0.86rem; color: var(--text-muted); line-height: 1.5; }
+.atlas-sources { margin-top: 3rem; border: 1px solid var(--border); border-radius: var(--radius-card); padding: 0.9rem 1.1rem; background: var(--bg-subtle); }
+.atlas-sources summary { cursor: pointer; font-weight: 600; }
+.atlas-sources ul { margin: 0.75rem 0 0; padding-left: 1.1rem; font-size: 0.82rem; color: var(--text-muted); columns: 2 320px; column-gap: 2rem; }
+.atlas-sources li { break-inside: avoid; margin-bottom: 0.3rem; }
+.atlas-sources p { font-size: 0.82rem; color: var(--text-muted); margin: 0.75rem 0 0; }
+
+/* ---------- Mobile : panneau compact, fiche en tiroir bas ---------- */
+@media (max-width: 899px) {
+  .atlas-stage { height: calc(100svh - 64px); min-height: 520px; --panel-w: 100%; }
+  .atlas-explorer { top: 10px; left: 10px; right: 10px; width: auto; max-height: calc(100% - 20px); padding: 0.75rem 0.85rem; }
+  .atlas-stage.explorer-closed .atlas-explorer { max-width: none; }
+  .atlas-explorer h1 { font-size: 1.1rem; }
+  .atlas-layers { grid-template-columns: 1fr 1fr; }
+  .atlas-layer-text small { display: none; }
+  .atlas-panel { top: auto; left: 0; right: 0; bottom: 0; width: 100%; height: 60%; border-radius: 16px 16px 0 0; animation-name: atlas-sheet-up; }
+  @keyframes atlas-sheet-up { from { transform: translateY(40px); opacity: 0; } }
+  .atlas-stage.has-panel .atlas-controls { right: 16px; bottom: calc(60% + 12px); }
+  .atlas-controls { right: 10px; bottom: 10px; }
+  .atlas-hint { display: none; }
+  .atlas-tourbar { left: 50%; bottom: auto; top: 92px; }
+  .atlas-tour-progress { width: 80px; }
+  .atlas-doc-title { display: none; }
+  .atlas-photo { aspect-ratio: 16 / 9; }
+  .atlas-facts > div { grid-template-columns: 7rem 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-svg, .atlas-zone { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .atlas-river-flow, .relief-glow, .atlas-marker.is-selected::before { animation: none !important; }
+  .atlas-photo img { transform: none !important; }
+}

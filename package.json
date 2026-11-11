@@ -1,0 +1,9 @@
+{
+  "name": "urithi",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm --prefix server-app run dev",
+    "dev:web": "npm --prefix web-app run dev",
+    "install:all": "npm --prefix server-app install && npm --prefix web-app install"
+  }
+}

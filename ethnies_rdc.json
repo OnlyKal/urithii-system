@@ -1,0 +1,2880 @@
+{
+  "communities": [
+    {
+      "name": "Kongo",
+      "otherNames": [
+        "Bakongo",
+        "Kikongo"
+      ],
+      "summary": "Grand peuple bantou du bassin inférieur du fleuve Congo, héritier de l'ancien royaume Kongo.",
+      "places": [
+        "Kongo Central",
+        "Kinshasa"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Ntandu",
+      "otherNames": [
+        "Bantandu"
+      ],
+      "summary": "Sous-groupe kongo de l'est du Kongo Central.",
+      "places": [
+        "Kongo Central",
+        "Madimba"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Manyanga",
+      "otherNames": [
+        "Bamanyanga"
+      ],
+      "summary": "Sous-groupe kongo de la région de Luozi.",
+      "places": [
+        "Kongo Central",
+        "Luozi"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Ndibu",
+      "otherNames": [
+        "Bandibu"
+      ],
+      "summary": "Sous-groupe kongo de la région de Mbanza-Ngungu.",
+      "places": [
+        "Kongo Central",
+        "Mbanza-Ngungu"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Yombe",
+      "otherNames": [
+        "Bayombe",
+        "Mayombe"
+      ],
+      "summary": "Peuple kongo de la forêt du Mayombe.",
+      "places": [
+        "Kongo Central",
+        "Lukula",
+        "Tshela"
+      ],
+      "languages": [
+        {
+          "isoCode": "yom"
+        }
+      ]
+    },
+    {
+      "name": "Woyo",
+      "otherNames": [
+        "Bawoyo"
+      ],
+      "summary": "Peuple kongo du littoral atlantique, autour de Muanda.",
+      "places": [
+        "Kongo Central",
+        "Muanda"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Zombo",
+      "otherNames": [
+        "Bazombo"
+      ],
+      "summary": "Sous-groupe kongo de la frontière angolaise.",
+      "places": [
+        "Kongo Central",
+        "Kwango"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mbata",
+      "otherNames": [
+        "Bambata"
+      ],
+      "summary": "Sous-groupe kongo issu de l'ancienne province Mbata du royaume Kongo.",
+      "places": [
+        "Kongo Central"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Solongo",
+      "otherNames": [
+        "Basolongo"
+      ],
+      "summary": "Sous-groupe kongo de l'embouchure du fleuve.",
+      "places": [
+        "Kongo Central",
+        "Muanda"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Vili",
+      "otherNames": [
+        "Bavili"
+      ],
+      "summary": "Peuple kongo du littoral, majoritairement au Congo-Brazzaville et au Cabinda.",
+      "places": [
+        "Kongo Central"
+      ],
+      "languages": [
+        {
+          "isoCode": "vif"
+        }
+      ]
+    },
+    {
+      "name": "Sundi",
+      "otherNames": [
+        "Basundi"
+      ],
+      "summary": "Sous-groupe kongo du nord du Kongo Central.",
+      "places": [
+        "Kongo Central",
+        "Luozi"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Besi Ngombe",
+      "otherNames": [
+        "Bisi Ngombe"
+      ],
+      "summary": "Sous-groupe kongo de la région des Cataractes.",
+      "places": [
+        "Kongo Central"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Lemfu",
+      "otherNames": [
+        "Balemfu"
+      ],
+      "summary": "Sous-groupe kongo de la région de Madimba.",
+      "places": [
+        "Kongo Central"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Mboma",
+      "otherNames": [
+        "Baboma du Bas-Congo"
+      ],
+      "summary": "Sous-groupe kongo de la région de Boma.",
+      "places": [
+        "Kongo Central",
+        "Boma"
+      ],
+      "languages": [
+        {
+          "isoCode": "kng"
+        }
+      ]
+    },
+    {
+      "name": "Yaka",
+      "otherNames": [
+        "Bayaka"
+      ],
+      "summary": "Peuple bantou du Kwango, réputé pour ses masques d'initiation.",
+      "places": [
+        "Kwango",
+        "Kasongo-Lunda",
+        "Popokabaka"
+      ],
+      "languages": [
+        {
+          "isoCode": "yaf"
+        }
+      ]
+    },
+    {
+      "name": "Suku",
+      "otherNames": [
+        "Basuku"
+      ],
+      "summary": "Peuple bantou du Kwango, voisin des Yaka.",
+      "places": [
+        "Kwango",
+        "Feshi"
+      ],
+      "languages": [
+        {
+          "isoCode": "sub"
+        }
+      ]
+    },
+    {
+      "name": "Mbala",
+      "otherNames": [
+        "Bambala"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu",
+        "Bagata",
+        "Bulungu"
+      ],
+      "languages": [
+        {
+          "isoCode": "mdp"
+        }
+      ]
+    },
+    {
+      "name": "Pende",
+      "otherNames": [
+        "Bapende"
+      ],
+      "summary": "Peuple bantou du Kwilu et du Kasaï, célèbre pour ses masques mbuya.",
+      "places": [
+        "Kwilu",
+        "Gungu",
+        "Kasaï",
+        "Tshikapa"
+      ],
+      "languages": [
+        {
+          "isoCode": "pem"
+        }
+      ]
+    },
+    {
+      "name": "Mbunda",
+      "otherNames": [
+        "Mbuun",
+        "Bambunda"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu",
+        "Idiofa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Pindi",
+      "otherNames": [
+        "Bapindi"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ngongo",
+      "otherNames": [
+        "Bangongo"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Hungana",
+      "otherNames": [
+        "Bahungana"
+      ],
+      "summary": "Petit peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": [
+        {
+          "isoCode": "hum"
+        }
+      ]
+    },
+    {
+      "name": "Holo",
+      "otherNames": [
+        "Baholo"
+      ],
+      "summary": "Peuple bantou du Kwango, à la frontière angolaise.",
+      "places": [
+        "Kwango"
+      ],
+      "languages": [
+        {
+          "isoCode": "hol"
+        }
+      ]
+    },
+    {
+      "name": "Teke",
+      "otherNames": [
+        "Bateke"
+      ],
+      "summary": "Peuple bantou des plateaux, présent aussi au Congo-Brazzaville et au Gabon.",
+      "places": [
+        "Kinshasa",
+        "Mai-Ndombe",
+        "Kwamouth"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Yansi",
+      "otherNames": [
+        "Bayansi"
+      ],
+      "summary": "Peuple bantou du Kwilu et du Mai-Ndombe.",
+      "places": [
+        "Kwilu",
+        "Bulungu",
+        "Mai-Ndombe"
+      ],
+      "languages": [
+        {
+          "isoCode": "yns"
+        }
+      ]
+    },
+    {
+      "name": "Sakata",
+      "otherNames": [
+        "Basakata"
+      ],
+      "summary": "Peuple bantou du Mai-Ndombe.",
+      "places": [
+        "Mai-Ndombe",
+        "Kutu"
+      ],
+      "languages": [
+        {
+          "isoCode": "skt"
+        }
+      ]
+    },
+    {
+      "name": "Boma",
+      "otherNames": [
+        "Baboma"
+      ],
+      "summary": "Peuple bantou du Mai-Ndombe, le long du Kasaï.",
+      "places": [
+        "Mai-Ndombe",
+        "Kwamouth"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Dia",
+      "otherNames": [
+        "Badia",
+        "Diya"
+      ],
+      "summary": "Peuple bantou du Mai-Ndombe.",
+      "places": [
+        "Mai-Ndombe"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Tiene",
+      "otherNames": [
+        "Batiene"
+      ],
+      "summary": "Peuple bantou du Mai-Ndombe.",
+      "places": [
+        "Mai-Ndombe"
+      ],
+      "languages": [
+        {
+          "isoCode": "tii"
+        }
+      ]
+    },
+    {
+      "name": "Mfunuka",
+      "otherNames": [
+        "Bamfunuka"
+      ],
+      "summary": "Peuple bantou du Mai-Ndombe.",
+      "places": [
+        "Mai-Ndombe"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Sengele",
+      "otherNames": [
+        "Basengele"
+      ],
+      "summary": "Peuple bantou des environs du lac Mai-Ndombe.",
+      "places": [
+        "Mai-Ndombe",
+        "Inongo"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ntomba",
+      "otherNames": [
+        "Bantomba"
+      ],
+      "summary": "Peuple mongo des lacs Mai-Ndombe et Tumba.",
+      "places": [
+        "Mai-Ndombe",
+        "Équateur",
+        "Bikoro"
+      ],
+      "languages": [
+        {
+          "isoCode": "nto"
+        }
+      ]
+    },
+    {
+      "name": "Nunu",
+      "otherNames": [
+        "Banunu"
+      ],
+      "summary": "Peuple bantou riverain du fleuve Congo et du Kasaï.",
+      "places": [
+        "Mai-Ndombe",
+        "Kwamouth"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bolia",
+      "otherNames": [
+        "Babolia"
+      ],
+      "summary": "Peuple mongo du Mai-Ndombe, ancien royaume Bolia.",
+      "places": [
+        "Mai-Ndombe",
+        "Inongo"
+      ],
+      "languages": [
+        {
+          "isoCode": "bli"
+        }
+      ]
+    },
+    {
+      "name": "Lwer",
+      "otherNames": [
+        "Balwer"
+      ],
+      "summary": "Petit peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Dinga",
+      "otherNames": [
+        "Badinga"
+      ],
+      "summary": "Peuple bantou du Kwilu, sur le Kasaï.",
+      "places": [
+        "Kwilu",
+        "Idiofa"
+      ],
+      "languages": [
+        {
+          "isoCode": "diz"
+        }
+      ]
+    },
+    {
+      "name": "Songo",
+      "otherNames": [
+        "Basongo"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": [
+        {
+          "isoCode": "soo"
+        }
+      ]
+    },
+    {
+      "name": "Kwese",
+      "otherNames": [
+        "Bakwese"
+      ],
+      "summary": "Peuple bantou du Kwilu et du Kasaï.",
+      "places": [
+        "Kwilu",
+        "Gungu",
+        "Kasaï"
+      ],
+      "languages": [
+        {
+          "isoCode": "kws"
+        }
+      ]
+    },
+    {
+      "name": "Samba",
+      "otherNames": [
+        "Basamba"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Tsong",
+      "otherNames": [
+        "Batsong"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ngul",
+      "otherNames": [
+        "Bangoli",
+        "Ngoli"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu",
+        "Idiofa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mpiin",
+      "otherNames": [
+        "Bampiin"
+      ],
+      "summary": "Peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mbeko",
+      "otherNames": [
+        "Bambeko"
+      ],
+      "summary": "Petit peuple bantou du Kwilu.",
+      "places": [
+        "Kwilu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Soonde",
+      "otherNames": [
+        "Basoonde"
+      ],
+      "summary": "Peuple bantou du Kwango, apparenté aux Lunda.",
+      "places": [
+        "Kwango"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Shinji",
+      "otherNames": [
+        "Bashinji"
+      ],
+      "summary": "Peuple bantou du Kwango, apparenté aux Lunda.",
+      "places": [
+        "Kwango"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Luba-Kasaï",
+      "otherNames": [
+        "Luba Lubilanji",
+        "Baluba du Kasaï"
+      ],
+      "summary": "Grand peuple bantou du Kasaï Oriental, de langue tshiluba.",
+      "places": [
+        "Kasaï Oriental",
+        "Mbuji-Mayi",
+        "Lomami"
+      ],
+      "languages": [
+        {
+          "isoCode": "lua"
+        }
+      ]
+    },
+    {
+      "name": "Lulua",
+      "otherNames": [
+        "Bena Lulua",
+        "Bena Luluwa"
+      ],
+      "summary": "Peuple luba du Kasaï Central, de langue tshiluba.",
+      "places": [
+        "Kasaï Central",
+        "Kananga"
+      ],
+      "languages": [
+        {
+          "isoCode": "lua"
+        }
+      ]
+    },
+    {
+      "name": "Kuba",
+      "otherNames": [
+        "Bakuba",
+        "Bushong",
+        "Bushoong"
+      ],
+      "summary": "Peuple bantou du Kasaï, héritier du royaume Kuba, connu pour ses velours de raphia.",
+      "places": [
+        "Kasaï",
+        "Mweka"
+      ],
+      "languages": [
+        {
+          "isoCode": "buf"
+        }
+      ]
+    },
+    {
+      "name": "Ngeende",
+      "otherNames": [
+        "Bangeende"
+      ],
+      "summary": "Sous-groupe kuba.",
+      "places": [
+        "Kasaï",
+        "Mweka"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Pyaang",
+      "otherNames": [
+        "Bapyaang"
+      ],
+      "summary": "Sous-groupe kuba.",
+      "places": [
+        "Kasaï",
+        "Mweka"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Kete",
+      "otherNames": [
+        "Bakete"
+      ],
+      "summary": "Peuple bantou du Kasaï, voisin des Kuba.",
+      "places": [
+        "Kasaï",
+        "Kasaï Central"
+      ],
+      "languages": [
+        {
+          "isoCode": "kcv"
+        }
+      ]
+    },
+    {
+      "name": "Lele",
+      "otherNames": [
+        "Balele"
+      ],
+      "summary": "Peuple bantou du Kasaï, à l'ouest des Kuba.",
+      "places": [
+        "Kasaï",
+        "Ilebo"
+      ],
+      "languages": [
+        {
+          "isoCode": "lel"
+        }
+      ]
+    },
+    {
+      "name": "Wongo",
+      "otherNames": [
+        "Bawongo"
+      ],
+      "summary": "Peuple bantou du Kasaï et du Kwilu.",
+      "places": [
+        "Kasaï",
+        "Kwilu"
+      ],
+      "languages": [
+        {
+          "isoCode": "won"
+        }
+      ]
+    },
+    {
+      "name": "Songye",
+      "otherNames": [
+        "Basonge",
+        "Basongye"
+      ],
+      "summary": "Peuple bantou réputé pour ses statues nkisi.",
+      "places": [
+        "Lomami",
+        "Kabinda",
+        "Kasaï Oriental",
+        "Haut-Lomami"
+      ],
+      "languages": [
+        {
+          "isoCode": "sop"
+        }
+      ]
+    },
+    {
+      "name": "Tetela",
+      "otherNames": [
+        "Batetela"
+      ],
+      "summary": "Peuple bantou du Sankuru et du Maniema.",
+      "places": [
+        "Sankuru",
+        "Lodja",
+        "Lubefu",
+        "Maniema",
+        "Kibombo"
+      ],
+      "languages": [
+        {
+          "isoCode": "tll"
+        }
+      ]
+    },
+    {
+      "name": "Kanyok",
+      "otherNames": [
+        "Bena Kanioka",
+        "Bakanyok"
+      ],
+      "summary": "Peuple bantou entre le Kasaï et le Katanga.",
+      "places": [
+        "Lomami",
+        "Kasaï Oriental"
+      ],
+      "languages": [
+        {
+          "isoCode": "kny"
+        }
+      ]
+    },
+    {
+      "name": "Mbagani",
+      "otherNames": [
+        "Bambagani"
+      ],
+      "summary": "Peuple bantou du Kasaï Central.",
+      "places": [
+        "Kasaï Central"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bindji",
+      "otherNames": [
+        "Babindji",
+        "Binji"
+      ],
+      "summary": "Peuple bantou du Kasaï Central.",
+      "places": [
+        "Kasaï Central"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Salampasu",
+      "otherNames": [
+        "Basalampasu",
+        "Sala Mpasu"
+      ],
+      "summary": "Peuple bantou du sud du Kasaï Central.",
+      "places": [
+        "Kasaï Central",
+        "Luiza"
+      ],
+      "languages": [
+        {
+          "isoCode": "slx"
+        }
+      ]
+    },
+    {
+      "name": "Lwalwa",
+      "otherNames": [
+        "Balwalwa"
+      ],
+      "summary": "Peuple bantou du sud du Kasaï Central, connu pour ses masques.",
+      "places": [
+        "Kasaï Central",
+        "Luiza"
+      ],
+      "languages": [
+        {
+          "isoCode": "lwa"
+        }
+      ]
+    },
+    {
+      "name": "Luntu",
+      "otherNames": [
+        "Baluntu"
+      ],
+      "summary": "Peuple bantou du Kasaï Central.",
+      "places": [
+        "Kasaï Central"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Nkutshu",
+      "otherNames": [
+        "Bankutshu",
+        "Nkutu"
+      ],
+      "summary": "Peuple bantou du Sankuru, apparenté aux Tetela.",
+      "places": [
+        "Sankuru"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Hamba",
+      "otherNames": [
+        "Bahamba"
+      ],
+      "summary": "Peuple bantou du Sankuru.",
+      "places": [
+        "Sankuru"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ndengese",
+      "otherNames": [
+        "Dengese",
+        "Bandengese"
+      ],
+      "summary": "Peuple bantou du Kasaï, au nord des Kuba.",
+      "places": [
+        "Kasaï",
+        "Dekese"
+      ],
+      "languages": [
+        {
+          "isoCode": "dez"
+        }
+      ]
+    },
+    {
+      "name": "Yela",
+      "otherNames": [
+        "Bayela"
+      ],
+      "summary": "Peuple bantou du Sankuru.",
+      "places": [
+        "Sankuru",
+        "Kole"
+      ],
+      "languages": [
+        {
+          "isoCode": "yel"
+        }
+      ]
+    },
+    {
+      "name": "Jonga",
+      "otherNames": [
+        "Bajonga"
+      ],
+      "summary": "Peuple bantou du Sankuru.",
+      "places": [
+        "Sankuru"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ohindu",
+      "otherNames": [
+        "Bahindu"
+      ],
+      "summary": "Peuple bantou du Sankuru.",
+      "places": [
+        "Sankuru"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mputu",
+      "otherNames": [
+        "Bampputu"
+      ],
+      "summary": "Peuple bantou du Kasaï.",
+      "places": [
+        "Kasaï"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Kalebwe",
+      "otherNames": [
+        "Bakalebwe"
+      ],
+      "summary": "Sous-groupe songye.",
+      "places": [
+        "Lomami",
+        "Haut-Lomami"
+      ],
+      "languages": [
+        {
+          "isoCode": "sop"
+        }
+      ]
+    },
+    {
+      "name": "Eki",
+      "otherNames": [
+        "Bena Eki"
+      ],
+      "summary": "Sous-groupe songye.",
+      "places": [
+        "Lomami"
+      ],
+      "languages": [
+        {
+          "isoCode": "sop"
+        }
+      ]
+    },
+    {
+      "name": "Bakwa Kalonji",
+      "otherNames": [
+        "Kalonji"
+      ],
+      "summary": "Sous-groupe luba du Kasaï Oriental.",
+      "places": [
+        "Kasaï Oriental"
+      ],
+      "languages": [
+        {
+          "isoCode": "lua"
+        }
+      ]
+    },
+    {
+      "name": "Luba-Katanga",
+      "otherNames": [
+        "Baluba du Katanga",
+        "Luba-Shaba"
+      ],
+      "summary": "Peuple bantou héritier de l'empire Luba, de langue kiluba.",
+      "places": [
+        "Haut-Lomami",
+        "Tanganyika",
+        "Haut-Katanga"
+      ],
+      "languages": [
+        {
+          "isoCode": "lub"
+        }
+      ]
+    },
+    {
+      "name": "Hemba",
+      "otherNames": [
+        "Bahemba"
+      ],
+      "summary": "Peuple bantou apparenté aux Luba, connu pour ses statues d'ancêtres.",
+      "places": [
+        "Tanganyika",
+        "Kongolo",
+        "Maniema"
+      ],
+      "languages": [
+        {
+          "isoCode": "hem"
+        }
+      ]
+    },
+    {
+      "name": "Lunda",
+      "otherNames": [
+        "Balunda",
+        "Ruund",
+        "Ndembu"
+      ],
+      "summary": "Peuple bantou héritier de l'empire Lunda du Mwant Yav.",
+      "places": [
+        "Lualaba",
+        "Kapanga",
+        "Sandoa",
+        "Kasaï"
+      ],
+      "languages": [
+        {
+          "isoCode": "lun"
+        }
+      ]
+    },
+    {
+      "name": "Chokwe",
+      "otherNames": [
+        "Tshokwe",
+        "Batshokwe"
+      ],
+      "summary": "Peuple bantou réputé pour son art et ses masques mwana pwo.",
+      "places": [
+        "Lualaba",
+        "Kasaï",
+        "Kwango"
+      ],
+      "languages": [
+        {
+          "isoCode": "cjk"
+        }
+      ]
+    },
+    {
+      "name": "Bemba",
+      "otherNames": [
+        "Babemba"
+      ],
+      "summary": "Peuple bantou du Haut-Katanga, majoritaire en Zambie.",
+      "places": [
+        "Haut-Katanga"
+      ],
+      "languages": [
+        {
+          "isoCode": "bem"
+        }
+      ]
+    },
+    {
+      "name": "Lamba",
+      "otherNames": [
+        "Balamba"
+      ],
+      "summary": "Peuple bantou du Haut-Katanga, autour de Lubumbashi.",
+      "places": [
+        "Haut-Katanga",
+        "Lubumbashi"
+      ],
+      "languages": [
+        {
+          "isoCode": "lam"
+        }
+      ]
+    },
+    {
+      "name": "Kaonde",
+      "otherNames": [
+        "Bakaonde"
+      ],
+      "summary": "Peuple bantou du Lualaba et de Zambie.",
+      "places": [
+        "Lualaba",
+        "Lubudi",
+        "Haut-Katanga"
+      ],
+      "languages": [
+        {
+          "isoCode": "kqn"
+        }
+      ]
+    },
+    {
+      "name": "Sanga",
+      "otherNames": [
+        "Basanga"
+      ],
+      "summary": "Peuple bantou du Haut-Katanga et du Lualaba.",
+      "places": [
+        "Haut-Katanga",
+        "Lualaba"
+      ],
+      "languages": [
+        {
+          "isoCode": "sng"
+        }
+      ]
+    },
+    {
+      "name": "Yeke",
+      "otherNames": [
+        "Bayeke"
+      ],
+      "summary": "Peuple venu d'Afrique de l'Est au XIXe siècle, fondateur du royaume de M'Siri à Bunkeya.",
+      "places": [
+        "Lualaba",
+        "Bunkeya"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Tabwa",
+      "otherNames": [
+        "Batabwa"
+      ],
+      "summary": "Peuple bantou des rives du lac Tanganyika et du lac Moero.",
+      "places": [
+        "Tanganyika",
+        "Moba",
+        "Haut-Katanga"
+      ],
+      "languages": [
+        {
+          "isoCode": "tap"
+        }
+      ]
+    },
+    {
+      "name": "Zela",
+      "otherNames": [
+        "Bazela"
+      ],
+      "summary": "Peuple bantou du Haut-Katanga.",
+      "places": [
+        "Haut-Katanga",
+        "Pweto"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Lomotwa",
+      "otherNames": [
+        "Balomotwa"
+      ],
+      "summary": "Peuple bantou du Haut-Katanga.",
+      "places": [
+        "Haut-Katanga"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Aushi",
+      "otherNames": [
+        "Ushi",
+        "Baushi"
+      ],
+      "summary": "Peuple bantou du Haut-Katanga et de Zambie.",
+      "places": [
+        "Haut-Katanga"
+      ],
+      "languages": [
+        {
+          "isoCode": "auh"
+        }
+      ]
+    },
+    {
+      "name": "Bwile",
+      "otherNames": [
+        "Babwile"
+      ],
+      "summary": "Peuple bantou des rives du lac Moero.",
+      "places": [
+        "Haut-Katanga",
+        "Pweto"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Shila",
+      "otherNames": [
+        "Bashila"
+      ],
+      "summary": "Peuple bantou des rives du lac Moero.",
+      "places": [
+        "Haut-Katanga"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Lala",
+      "otherNames": [
+        "Balala"
+      ],
+      "summary": "Peuple bantou du Haut-Katanga et de Zambie.",
+      "places": [
+        "Haut-Katanga"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Kunda",
+      "otherNames": [
+        "Bakunda"
+      ],
+      "summary": "Peuple bantou du Haut-Katanga.",
+      "places": [
+        "Haut-Katanga"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Luvale",
+      "otherNames": [
+        "Lwena",
+        "Balwena"
+      ],
+      "summary": "Peuple bantou du Lualaba, présent aussi en Angola et Zambie.",
+      "places": [
+        "Lualaba",
+        "Dilolo"
+      ],
+      "languages": [
+        {
+          "isoCode": "lue"
+        }
+      ]
+    },
+    {
+      "name": "Minungu",
+      "otherNames": [
+        "Baminungu"
+      ],
+      "summary": "Peuple bantou apparenté aux Chokwe.",
+      "places": [
+        "Lualaba"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Holoholo",
+      "otherNames": [
+        "Baholoholo"
+      ],
+      "summary": "Peuple bantou des rives du lac Tanganyika.",
+      "places": [
+        "Tanganyika",
+        "Kalemie"
+      ],
+      "languages": [
+        {
+          "isoCode": "hoo"
+        }
+      ]
+    },
+    {
+      "name": "Tumbwe",
+      "otherNames": [
+        "Batumbwe"
+      ],
+      "summary": "Peuple bantou du Tanganyika.",
+      "places": [
+        "Tanganyika",
+        "Kalemie"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Kalanga",
+      "otherNames": [
+        "Bakalanga"
+      ],
+      "summary": "Peuple bantou du Katanga.",
+      "places": [
+        "Tanganyika"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bangubangu",
+      "otherNames": [
+        "Bangu-Bangu",
+        "Babangubangu"
+      ],
+      "summary": "Peuple bantou du Maniema et du Tanganyika.",
+      "places": [
+        "Maniema",
+        "Kabambare",
+        "Tanganyika"
+      ],
+      "languages": [
+        {
+          "isoCode": "bnx"
+        }
+      ]
+    },
+    {
+      "name": "Lega",
+      "otherNames": [
+        "Rega",
+        "Balega",
+        "Barega"
+      ],
+      "summary": "Peuple bantou célèbre pour l'association du Bwami et ses sculptures en ivoire.",
+      "places": [
+        "Sud-Kivu",
+        "Mwenga",
+        "Shabunda",
+        "Maniema",
+        "Pangi"
+      ],
+      "languages": [
+        {
+          "isoCode": "lea"
+        },
+        {
+          "isoCode": "lgm"
+        }
+      ]
+    },
+    {
+      "name": "Kusu",
+      "otherNames": [
+        "Bakusu"
+      ],
+      "summary": "Peuple bantou du Maniema et du Sankuru, apparenté aux Tetela.",
+      "places": [
+        "Maniema",
+        "Kindu",
+        "Kibombo",
+        "Sankuru"
+      ],
+      "languages": [
+        {
+          "isoCode": "ksv"
+        }
+      ]
+    },
+    {
+      "name": "Songola",
+      "otherNames": [
+        "Basongola"
+      ],
+      "summary": "Peuple bantou du Maniema, sur le fleuve.",
+      "places": [
+        "Maniema",
+        "Kindu"
+      ],
+      "languages": [
+        {
+          "isoCode": "sod"
+        }
+      ]
+    },
+    {
+      "name": "Zimba",
+      "otherNames": [
+        "Binja",
+        "Bazimba"
+      ],
+      "summary": "Peuple bantou du Maniema.",
+      "places": [
+        "Maniema",
+        "Kasongo"
+      ],
+      "languages": [
+        {
+          "isoCode": "zmb"
+        }
+      ]
+    },
+    {
+      "name": "Genya",
+      "otherNames": [
+        "Enya",
+        "Wagenia"
+      ],
+      "summary": "Peuple de pêcheurs des chutes Boyoma, connu pour ses nasses.",
+      "places": [
+        "Tshopo",
+        "Kisangani",
+        "Maniema"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mituku",
+      "otherNames": [
+        "Bamituku"
+      ],
+      "summary": "Peuple bantou du Maniema et de la Tshopo.",
+      "places": [
+        "Maniema",
+        "Tshopo"
+      ],
+      "languages": [
+        {
+          "isoCode": "zmq"
+        }
+      ]
+    },
+    {
+      "name": "Komo",
+      "otherNames": [
+        "Kumu",
+        "Bakumu"
+      ],
+      "summary": "Peuple bantou de forêt, connu pour ses devins.",
+      "places": [
+        "Maniema",
+        "Lubutu",
+        "Tshopo",
+        "Nord-Kivu",
+        "Walikale"
+      ],
+      "languages": [
+        {
+          "isoCode": "kmw"
+        }
+      ]
+    },
+    {
+      "name": "Ombo",
+      "otherNames": [
+        "Baombo"
+      ],
+      "summary": "Petit peuple bantou du Maniema.",
+      "places": [
+        "Maniema"
+      ],
+      "languages": [
+        {
+          "isoCode": "oml"
+        }
+      ]
+    },
+    {
+      "name": "Langa",
+      "otherNames": [
+        "Balanga"
+      ],
+      "summary": "Peuple bantou du Maniema.",
+      "places": [
+        "Maniema"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bembe",
+      "otherNames": [
+        "Babembe"
+      ],
+      "summary": "Peuple bantou du Sud-Kivu, sur la rive du lac Tanganyika.",
+      "places": [
+        "Sud-Kivu",
+        "Fizi",
+        "Maniema"
+      ],
+      "languages": [
+        {
+          "isoCode": "bmb"
+        }
+      ]
+    },
+    {
+      "name": "Lengola",
+      "otherNames": [
+        "Balengola"
+      ],
+      "summary": "Peuple bantou du Maniema et de la Tshopo.",
+      "places": [
+        "Maniema",
+        "Tshopo"
+      ],
+      "languages": [
+        {
+          "isoCode": "lej"
+        }
+      ]
+    },
+    {
+      "name": "Nonda",
+      "otherNames": [
+        "Banonda"
+      ],
+      "summary": "Peuple bantou du Maniema.",
+      "places": [
+        "Maniema"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Nande",
+      "otherNames": [
+        "Yira",
+        "Banande",
+        "Bayira"
+      ],
+      "summary": "Peuple bantou du Nord-Kivu, réputé pour son dynamisme commercial.",
+      "places": [
+        "Nord-Kivu",
+        "Beni",
+        "Lubero",
+        "Butembo"
+      ],
+      "languages": [
+        {
+          "isoCode": "nnb"
+        }
+      ]
+    },
+    {
+      "name": "Hunde",
+      "otherNames": [
+        "Bahunde"
+      ],
+      "summary": "Peuple bantou du Nord-Kivu.",
+      "places": [
+        "Nord-Kivu",
+        "Masisi",
+        "Rutshuru"
+      ],
+      "languages": [
+        {
+          "isoCode": "hke"
+        }
+      ]
+    },
+    {
+      "name": "Nyanga",
+      "otherNames": [
+        "Banyanga"
+      ],
+      "summary": "Peuple bantou du Nord-Kivu, connu pour l'épopée de Mwindo.",
+      "places": [
+        "Nord-Kivu",
+        "Walikale"
+      ],
+      "languages": [
+        {
+          "isoCode": "nyj"
+        }
+      ]
+    },
+    {
+      "name": "Tembo",
+      "otherNames": [
+        "Batembo"
+      ],
+      "summary": "Peuple bantou entre Nord et Sud-Kivu.",
+      "places": [
+        "Sud-Kivu",
+        "Kalehe",
+        "Nord-Kivu"
+      ],
+      "languages": [
+        {
+          "isoCode": "tbt"
+        }
+      ]
+    },
+    {
+      "name": "Havu",
+      "otherNames": [
+        "Bahavu"
+      ],
+      "summary": "Peuple bantou de l'île d'Idjwi et des rives du lac Kivu.",
+      "places": [
+        "Sud-Kivu",
+        "Idjwi",
+        "Kalehe"
+      ],
+      "languages": [
+        {
+          "isoCode": "hav"
+        }
+      ]
+    },
+    {
+      "name": "Shi",
+      "otherNames": [
+        "Bashi"
+      ],
+      "summary": "Peuple bantou du Sud-Kivu, autour de Bukavu.",
+      "places": [
+        "Sud-Kivu",
+        "Kabare",
+        "Walungu",
+        "Bukavu"
+      ],
+      "languages": [
+        {
+          "isoCode": "shr"
+        }
+      ]
+    },
+    {
+      "name": "Fuliiru",
+      "otherNames": [
+        "Bafuliiru"
+      ],
+      "summary": "Peuple bantou de la plaine de la Ruzizi.",
+      "places": [
+        "Sud-Kivu",
+        "Uvira"
+      ],
+      "languages": [
+        {
+          "isoCode": "flr"
+        }
+      ]
+    },
+    {
+      "name": "Vira",
+      "otherNames": [
+        "Bavira"
+      ],
+      "summary": "Peuple bantou des environs d'Uvira.",
+      "places": [
+        "Sud-Kivu",
+        "Uvira"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Kabwari",
+      "otherNames": [
+        "Bakabwari"
+      ],
+      "summary": "Petit peuple bantou du Sud-Kivu.",
+      "places": [
+        "Sud-Kivu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Rundi",
+      "otherNames": [
+        "Barundi"
+      ],
+      "summary": "Peuple bantou de la plaine de la Ruzizi, apparenté aux Burundais.",
+      "places": [
+        "Sud-Kivu",
+        "Uvira"
+      ],
+      "languages": [
+        {
+          "isoCode": "run"
+        }
+      ]
+    },
+    {
+      "name": "Banyarwanda",
+      "otherNames": [
+        "Hutu",
+        "Tutsi",
+        "Rwandophones"
+      ],
+      "summary": "Populations rwandophones du Nord-Kivu.",
+      "places": [
+        "Nord-Kivu",
+        "Rutshuru",
+        "Masisi"
+      ],
+      "languages": [
+        {
+          "isoCode": "kin"
+        }
+      ]
+    },
+    {
+      "name": "Banyamulenge",
+      "otherNames": [
+        "Tutsi du Sud-Kivu"
+      ],
+      "summary": "Population rwandophone des hauts plateaux du Sud-Kivu.",
+      "places": [
+        "Sud-Kivu",
+        "Uvira",
+        "Fizi",
+        "Mwenga"
+      ],
+      "languages": [
+        {
+          "isoCode": "kin"
+        }
+      ]
+    },
+    {
+      "name": "Kano",
+      "otherNames": [
+        "Bakano"
+      ],
+      "summary": "Petit peuple bantou du Kivu.",
+      "places": [
+        "Nord-Kivu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Pere",
+      "otherNames": [
+        "Bapere"
+      ],
+      "summary": "Petit peuple bantou du Nord-Kivu.",
+      "places": [
+        "Nord-Kivu",
+        "Lubero"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Talinga",
+      "otherNames": [
+        "Batalinga",
+        "Bwisi"
+      ],
+      "summary": "Peuple bantou du nord du Nord-Kivu, près de l'Ouganda.",
+      "places": [
+        "Nord-Kivu",
+        "Beni"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Hema",
+      "otherNames": [
+        "Bahema"
+      ],
+      "summary": "Peuple pastoral de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Djugu",
+        "Irumu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Lendu",
+      "otherNames": [
+        "Balendu"
+      ],
+      "summary": "Peuple soudanique central de l'Ituri, agriculteur.",
+      "places": [
+        "Ituri",
+        "Djugu"
+      ],
+      "languages": [
+        {
+          "isoCode": "led"
+        }
+      ]
+    },
+    {
+      "name": "Ngiti",
+      "otherNames": [
+        "Lendu du Sud",
+        "Bindi"
+      ],
+      "summary": "Peuple soudanique central du sud de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Irumu"
+      ],
+      "languages": [
+        {
+          "isoCode": "niy"
+        }
+      ]
+    },
+    {
+      "name": "Alur",
+      "otherNames": [
+        "Baalur"
+      ],
+      "summary": "Peuple nilotique de l'Ituri et de l'Ouganda.",
+      "places": [
+        "Ituri",
+        "Mahagi"
+      ],
+      "languages": [
+        {
+          "isoCode": "alz"
+        }
+      ]
+    },
+    {
+      "name": "Lugbara",
+      "otherNames": [
+        "Balugbara"
+      ],
+      "summary": "Peuple soudanique central de l'Ituri, de l'Ouganda et du Soudan du Sud.",
+      "places": [
+        "Ituri",
+        "Aru"
+      ],
+      "languages": [
+        {
+          "isoCode": "lgg"
+        }
+      ]
+    },
+    {
+      "name": "Kakwa",
+      "otherNames": [
+        "Bakakwa"
+      ],
+      "summary": "Peuple nilotique de l'Ituri, de l'Ouganda et du Soudan du Sud.",
+      "places": [
+        "Ituri",
+        "Aru"
+      ],
+      "languages": [
+        {
+          "isoCode": "keo"
+        }
+      ]
+    },
+    {
+      "name": "Logo",
+      "otherNames": [
+        "Balogo"
+      ],
+      "summary": "Peuple soudanique central de l'Ituri et du Haut-Uele.",
+      "places": [
+        "Ituri",
+        "Aru",
+        "Haut-Uele",
+        "Faradje"
+      ],
+      "languages": [
+        {
+          "isoCode": "log"
+        }
+      ]
+    },
+    {
+      "name": "Kaliko",
+      "otherNames": [
+        "Keliko"
+      ],
+      "summary": "Peuple soudanique central de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Aru"
+      ],
+      "languages": [
+        {
+          "isoCode": "kbo"
+        }
+      ]
+    },
+    {
+      "name": "Ndo",
+      "otherNames": [
+        "Okebu",
+        "Kebu"
+      ],
+      "summary": "Peuple soudanique central de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Mahagi",
+        "Aru"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mamvu",
+      "otherNames": [
+        "Mamvu"
+      ],
+      "summary": "Peuple soudanique central de l'Ituri et du Haut-Uele.",
+      "places": [
+        "Ituri",
+        "Mambasa",
+        "Haut-Uele",
+        "Watsa"
+      ],
+      "languages": [
+        {
+          "isoCode": "mdi"
+        }
+      ]
+    },
+    {
+      "name": "Lese",
+      "otherNames": [
+        "Walese",
+        "Balese"
+      ],
+      "summary": "Peuple soudanique central de la forêt de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Mambasa",
+        "Irumu"
+      ],
+      "languages": [
+        {
+          "isoCode": "les"
+        }
+      ]
+    },
+    {
+      "name": "Bira",
+      "otherNames": [
+        "Babira"
+      ],
+      "summary": "Peuple bantou de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Irumu",
+        "Mambasa"
+      ],
+      "languages": [
+        {
+          "isoCode": "brf"
+        }
+      ]
+    },
+    {
+      "name": "Nyali",
+      "otherNames": [
+        "Banyali"
+      ],
+      "summary": "Peuple bantou de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Irumu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mvuba",
+      "otherNames": [
+        "Bamvuba"
+      ],
+      "summary": "Petit peuple soudanique central de l'Ituri.",
+      "places": [
+        "Ituri"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ndaka",
+      "otherNames": [
+        "Bandaka"
+      ],
+      "summary": "Peuple bantou de forêt de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Mambasa"
+      ],
+      "languages": [
+        {
+          "isoCode": "ndk"
+        }
+      ]
+    },
+    {
+      "name": "Mbo",
+      "otherNames": [
+        "Bambo"
+      ],
+      "summary": "Peuple bantou de forêt de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Mambasa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Lika",
+      "otherNames": [
+        "Balika"
+      ],
+      "summary": "Peuple bantou du Haut-Uele.",
+      "places": [
+        "Haut-Uele",
+        "Wamba"
+      ],
+      "languages": [
+        {
+          "isoCode": "lik"
+        }
+      ]
+    },
+    {
+      "name": "Zande",
+      "otherNames": [
+        "Azande",
+        "Bazande"
+      ],
+      "summary": "Grand peuple oubanguien, héritier de royaumes guerriers du XIXe siècle.",
+      "places": [
+        "Bas-Uele",
+        "Haut-Uele",
+        "Ango",
+        "Dungu",
+        "Niangara"
+      ],
+      "languages": [
+        {
+          "isoCode": "zne"
+        }
+      ]
+    },
+    {
+      "name": "Mangbetu",
+      "otherNames": [
+        "Mangbetu",
+        "Bamangbetu"
+      ],
+      "summary": "Peuple soudanique central, célèbre pour son ancienne cour royale et ses coiffures allongées.",
+      "places": [
+        "Haut-Uele",
+        "Rungu",
+        "Niangara"
+      ],
+      "languages": [
+        {
+          "isoCode": "mdj"
+        }
+      ]
+    },
+    {
+      "name": "Mangbutu",
+      "otherNames": [
+        "Bamangbutu"
+      ],
+      "summary": "Peuple soudanique central du Haut-Uele et de l'Ituri.",
+      "places": [
+        "Haut-Uele",
+        "Watsa",
+        "Ituri"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mayogo",
+      "otherNames": [
+        "Bamayogo"
+      ],
+      "summary": "Peuple oubanguien du Haut-Uele.",
+      "places": [
+        "Haut-Uele",
+        "Rungu"
+      ],
+      "languages": [
+        {
+          "isoCode": "mdm"
+        }
+      ]
+    },
+    {
+      "name": "Barambo",
+      "otherNames": [
+        "Abarambo"
+      ],
+      "summary": "Peuple oubanguien du Bas-Uele.",
+      "places": [
+        "Bas-Uele",
+        "Poko"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bangba",
+      "otherNames": [
+        "Abangba"
+      ],
+      "summary": "Peuple oubanguien du Haut-Uele.",
+      "places": [
+        "Haut-Uele"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mangbele",
+      "otherNames": [
+        "Bamangbele"
+      ],
+      "summary": "Petit peuple du Haut-Uele, voisin des Mangbetu.",
+      "places": [
+        "Haut-Uele"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Makere",
+      "otherNames": [
+        "Bamakere"
+      ],
+      "summary": "Peuple du Haut-Uele, voisin des Mangbetu.",
+      "places": [
+        "Haut-Uele",
+        "Rungu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Meje",
+      "otherNames": [
+        "Medje",
+        "Bameje"
+      ],
+      "summary": "Peuple du Haut-Uele, proche des Mangbetu.",
+      "places": [
+        "Haut-Uele"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Boa",
+      "otherNames": [
+        "Babwa",
+        "Babua",
+        "Bwa"
+      ],
+      "summary": "Peuple bantou du Bas-Uele, connu pour ses masques aux grandes oreilles.",
+      "places": [
+        "Bas-Uele",
+        "Buta",
+        "Poko"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Benge",
+      "otherNames": [
+        "Babenge"
+      ],
+      "summary": "Peuple bantou du Bas-Uele.",
+      "places": [
+        "Bas-Uele"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ngelima",
+      "otherNames": [
+        "Bangelima"
+      ],
+      "summary": "Peuple bantou du Bas-Uele et de la Tshopo.",
+      "places": [
+        "Bas-Uele",
+        "Tshopo"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Kango",
+      "otherNames": [
+        "Bakango"
+      ],
+      "summary": "Peuple bantou riverain de l'Uele.",
+      "places": [
+        "Bas-Uele"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Lokele",
+      "otherNames": [
+        "Balokele"
+      ],
+      "summary": "Peuple de pêcheurs et commerçants riverains du fleuve, autour de Kisangani.",
+      "places": [
+        "Tshopo",
+        "Isangi",
+        "Kisangani"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Topoke",
+      "otherNames": [
+        "Batopoke"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo",
+        "Isangi"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mbole",
+      "otherNames": [
+        "Bambole"
+      ],
+      "summary": "Peuple bantou de la Tshopo, connu pour ses statues lilwa.",
+      "places": [
+        "Tshopo",
+        "Opala"
+      ],
+      "languages": [
+        {
+          "isoCode": "mdq"
+        }
+      ]
+    },
+    {
+      "name": "Bali",
+      "otherNames": [
+        "Babali"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo",
+        "Bafwasende",
+        "Banalia"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Turumbu",
+      "otherNames": [
+        "Baturumbu"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo",
+        "Isangi",
+        "Basoko"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Popoi",
+      "otherNames": [
+        "Bapopoi"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo",
+        "Banalia"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Yaliko",
+      "otherNames": [
+        "Bayaliko"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Lombi",
+      "otherNames": [
+        "Balombi"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bango",
+      "otherNames": [
+        "Babango"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Budu",
+      "otherNames": [
+        "Babudu"
+      ],
+      "summary": "Peuple bantou du Haut-Uele et de l'Ituri.",
+      "places": [
+        "Haut-Uele",
+        "Wamba",
+        "Ituri"
+      ],
+      "languages": [
+        {
+          "isoCode": "buu"
+        }
+      ]
+    },
+    {
+      "name": "Foma",
+      "otherNames": [
+        "Bafoma"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Soko",
+      "otherNames": [
+        "So",
+        "Basoko"
+      ],
+      "summary": "Peuple bantou riverain du fleuve, en Tshopo.",
+      "places": [
+        "Tshopo",
+        "Basoko"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mbesa",
+      "otherNames": [
+        "Bambesa"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Pambia",
+      "otherNames": [
+        "Apambia"
+      ],
+      "summary": "Peuple oubanguien du Bas-Uele.",
+      "places": [
+        "Bas-Uele"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ngombe",
+      "otherNames": [
+        "Bangombe"
+      ],
+      "summary": "Grand peuple bantou du nord, de l'Équateur à la Tshopo.",
+      "places": [
+        "Mongala",
+        "Équateur",
+        "Tshopo"
+      ],
+      "languages": [
+        {
+          "isoCode": "ngc"
+        }
+      ]
+    },
+    {
+      "name": "Lombo",
+      "otherNames": [
+        "Balombo"
+      ],
+      "summary": "Peuple bantou de la Tshopo.",
+      "places": [
+        "Tshopo"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mongo",
+      "otherNames": [
+        "Bamongo"
+      ],
+      "summary": "Vaste ensemble bantou de la cuvette centrale.",
+      "places": [
+        "Tshuapa",
+        "Équateur",
+        "Mai-Ndombe",
+        "Sankuru"
+      ],
+      "languages": [
+        {
+          "isoCode": "lol"
+        }
+      ]
+    },
+    {
+      "name": "Nkundo",
+      "otherNames": [
+        "Bankundo"
+      ],
+      "summary": "Sous-groupe mongo des environs de Mbandaka.",
+      "places": [
+        "Équateur",
+        "Mbandaka",
+        "Ingende"
+      ],
+      "languages": [
+        {
+          "isoCode": "lol"
+        }
+      ]
+    },
+    {
+      "name": "Ekonda",
+      "otherNames": [
+        "Baekonda"
+      ],
+      "summary": "Sous-groupe mongo du Mai-Ndombe et de l'Équateur.",
+      "places": [
+        "Mai-Ndombe",
+        "Équateur",
+        "Bikoro"
+      ],
+      "languages": [
+        {
+          "isoCode": "lol"
+        }
+      ]
+    },
+    {
+      "name": "Ngandu",
+      "otherNames": [
+        "Bangandu"
+      ],
+      "summary": "Sous-groupe mongo de la Tshuapa.",
+      "places": [
+        "Tshuapa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bosaka",
+      "otherNames": [
+        "Basaka"
+      ],
+      "summary": "Sous-groupe mongo.",
+      "places": [
+        "Tshuapa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bakutu",
+      "otherNames": [
+        "Kutu"
+      ],
+      "summary": "Sous-groupe mongo de la Tshuapa.",
+      "places": [
+        "Tshuapa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bongandu",
+      "otherNames": [
+        "Bongando"
+      ],
+      "summary": "Sous-groupe mongo de la Tshuapa.",
+      "places": [
+        "Tshuapa",
+        "Djolu"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Yamongo",
+      "otherNames": [
+        "Bayamongo"
+      ],
+      "summary": "Sous-groupe mongo.",
+      "places": [
+        "Tshuapa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Lalia",
+      "otherNames": [
+        "Balalia"
+      ],
+      "summary": "Sous-groupe mongo.",
+      "places": [
+        "Tshuapa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ngando",
+      "otherNames": [
+        "Bangando"
+      ],
+      "summary": "Peuple bantou de la Tshuapa.",
+      "places": [
+        "Tshuapa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Iyembe",
+      "otherNames": [
+        "Baiyembe"
+      ],
+      "summary": "Sous-groupe mongo.",
+      "places": [
+        "Tshuapa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ngbaka",
+      "otherNames": [
+        "Bangbaka"
+      ],
+      "summary": "Grand peuple oubanguien du Sud-Ubangi.",
+      "places": [
+        "Sud-Ubangi",
+        "Gemena",
+        "Budjala"
+      ],
+      "languages": [
+        {
+          "isoCode": "nga"
+        }
+      ]
+    },
+    {
+      "name": "Ngbandi",
+      "otherNames": [
+        "Bangbandi"
+      ],
+      "summary": "Peuple oubanguien du Nord-Ubangi.",
+      "places": [
+        "Nord-Ubangi",
+        "Mobayi-Mbongo",
+        "Yakoma"
+      ],
+      "languages": [
+        {
+          "isoCode": "ngb"
+        }
+      ]
+    },
+    {
+      "name": "Mbanza",
+      "otherNames": [
+        "Bambanza"
+      ],
+      "summary": "Peuple oubanguien du Nord et du Sud-Ubangi.",
+      "places": [
+        "Nord-Ubangi",
+        "Sud-Ubangi"
+      ],
+      "languages": [
+        {
+          "isoCode": "mzv"
+        }
+      ]
+    },
+    {
+      "name": "Budja",
+      "otherNames": [
+        "Mbuja",
+        "Babudja"
+      ],
+      "summary": "Peuple bantou de la Mongala.",
+      "places": [
+        "Mongala",
+        "Bumba"
+      ],
+      "languages": [
+        {
+          "isoCode": "bja"
+        }
+      ]
+    },
+    {
+      "name": "Yakoma",
+      "otherNames": [
+        "Bayakoma"
+      ],
+      "summary": "Peuple oubanguien du Nord-Ubangi.",
+      "places": [
+        "Nord-Ubangi",
+        "Yakoma"
+      ],
+      "languages": [
+        {
+          "isoCode": "yky"
+        }
+      ]
+    },
+    {
+      "name": "Gbanziri",
+      "otherNames": [
+        "Banziri"
+      ],
+      "summary": "Peuple oubanguien des rives de l'Oubangui.",
+      "places": [
+        "Nord-Ubangi"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Banda",
+      "otherNames": [
+        "Babanda"
+      ],
+      "summary": "Peuple oubanguien, majoritaire en Centrafrique.",
+      "places": [
+        "Nord-Ubangi"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Monzombo",
+      "otherNames": [
+        "Bamonzombo"
+      ],
+      "summary": "Peuple oubanguien des rives de l'Oubangui.",
+      "places": [
+        "Sud-Ubangi"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bobangi",
+      "otherNames": [
+        "Babobangi"
+      ],
+      "summary": "Peuple de commerçants fluviaux du fleuve et de l'Oubangui.",
+      "places": [
+        "Équateur",
+        "Sud-Ubangi"
+      ],
+      "languages": [
+        {
+          "isoCode": "bni"
+        }
+      ]
+    },
+    {
+      "name": "Libinza",
+      "otherNames": [
+        "Balibinza"
+      ],
+      "summary": "Peuple riverain de la Ngiri.",
+      "places": [
+        "Équateur",
+        "Sud-Ubangi"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Lusengo",
+      "otherNames": [
+        "Balusengo"
+      ],
+      "summary": "Peuple riverain du fleuve.",
+      "places": [
+        "Mongala",
+        "Équateur"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mabale",
+      "otherNames": [
+        "Bamabale"
+      ],
+      "summary": "Peuple riverain du fleuve.",
+      "places": [
+        "Équateur",
+        "Mongala"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Doko",
+      "otherNames": [
+        "Badoko"
+      ],
+      "summary": "Peuple bantou de la Mongala.",
+      "places": [
+        "Mongala"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Boloki",
+      "otherNames": [
+        "Baboloki"
+      ],
+      "summary": "Peuple riverain du fleuve.",
+      "places": [
+        "Équateur"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ndolo",
+      "otherNames": [
+        "Bandolo"
+      ],
+      "summary": "Peuple riverain du fleuve.",
+      "places": [
+        "Mongala",
+        "Équateur"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Pagabete",
+      "otherNames": [
+        "Bapagabete"
+      ],
+      "summary": "Peuple oubanguien du Sud-Ubangi.",
+      "places": [
+        "Sud-Ubangi"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Likoka",
+      "otherNames": [
+        "Balikoka"
+      ],
+      "summary": "Peuple riverain de la Ngiri.",
+      "places": [
+        "Équateur"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Bomboma",
+      "otherNames": [
+        "Babomboma"
+      ],
+      "summary": "Peuple bantou du Sud-Ubangi.",
+      "places": [
+        "Sud-Ubangi"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Ngiri",
+      "otherNames": [
+        "Bangiri"
+      ],
+      "summary": "Peuples riverains de la rivière Ngiri.",
+      "places": [
+        "Équateur",
+        "Sud-Ubangi"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Loi",
+      "otherNames": [
+        "Baloi"
+      ],
+      "summary": "Peuple riverain de l'Équateur.",
+      "places": [
+        "Équateur"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Twa",
+      "otherNames": [
+        "Batwa",
+        "Cwa",
+        "Bacwa"
+      ],
+      "summary": "Peuples autochtones présents dans plusieurs provinces (Kivu, Équateur, Katanga, Kasaï).",
+      "places": [
+        "Équateur",
+        "Sud-Kivu",
+        "Nord-Kivu",
+        "Tanganyika",
+        "Kasaï"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Mbuti",
+      "otherNames": [
+        "Bambuti"
+      ],
+      "summary": "Peuple autochtone chasseur-cueilleur de la forêt de l'Ituri.",
+      "places": [
+        "Ituri",
+        "Mambasa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Efe",
+      "otherNames": [
+        "Baefe"
+      ],
+      "summary": "Peuple autochtone de la forêt de l'Ituri, associé aux Lese.",
+      "places": [
+        "Ituri",
+        "Mambasa"
+      ],
+      "languages": []
+    },
+    {
+      "name": "Aka",
+      "otherNames": [
+        "Baaka",
+        "Bayaka des forêts"
+      ],
+      "summary": "Peuple autochtone de la forêt de l'Oubangui.",
+      "places": [
+        "Sud-Ubangi",
+        "Nord-Ubangi"
+      ],
+      "languages": [
+        {
+          "isoCode": "axk"
+        }
+      ]
+    }
+  ]
+}

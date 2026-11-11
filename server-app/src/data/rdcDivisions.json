@@ -1,0 +1,330 @@
+{
+ "source": "Découpage administratif de la RDC en 26 provinces (Constitution de 2006, art. 2, mis en œuvre en 2015) : 145 territoires ; Kinshasa, ville-province, compte 24 communes.",
+ "provinces": [
+  {
+   "name": "Bas-Uele",
+   "unit": "territoire",
+   "territories": [
+    "Aketi",
+    "Ango",
+    "Bambesa",
+    "Bondo",
+    "Buta",
+    "Poko"
+   ]
+  },
+  {
+   "name": "Équateur",
+   "unit": "territoire",
+   "territories": [
+    "Basankusu",
+    "Bikoro",
+    "Bolomba",
+    "Bomongo",
+    "Ingende",
+    "Lukolela",
+    "Makanza"
+   ]
+  },
+  {
+   "name": "Haut-Katanga",
+   "unit": "territoire",
+   "territories": [
+    "Kambove",
+    "Kasenga",
+    "Kipushi",
+    "Mitwaba",
+    "Pweto",
+    "Sakania"
+   ]
+  },
+  {
+   "name": "Haut-Lomami",
+   "unit": "territoire",
+   "territories": [
+    "Bukama",
+    "Kabongo",
+    "Kamina",
+    "Kaniama",
+    "Malemba-Nkulu"
+   ]
+  },
+  {
+   "name": "Haut-Uele",
+   "unit": "territoire",
+   "territories": [
+    "Dungu",
+    "Faradje",
+    "Niangara",
+    "Rungu",
+    "Wamba",
+    "Watsa"
+   ]
+  },
+  {
+   "name": "Ituri",
+   "unit": "territoire",
+   "territories": [
+    "Aru",
+    "Djugu",
+    "Irumu",
+    "Mahagi",
+    "Mambasa"
+   ]
+  },
+  {
+   "name": "Kasaï",
+   "unit": "territoire",
+   "territories": [
+    "Dekese",
+    "Ilebo",
+    "Kamonia",
+    "Luebo",
+    "Mweka"
+   ]
+  },
+  {
+   "name": "Kasaï-Central",
+   "unit": "territoire",
+   "territories": [
+    "Demba",
+    "Dibaya",
+    "Dimbelenge",
+    "Kazumba",
+    "Luiza"
+   ]
+  },
+  {
+   "name": "Kasaï-Oriental",
+   "unit": "territoire",
+   "territories": [
+    "Kabeya-Kamwanga",
+    "Katanda",
+    "Lupatapata",
+    "Miabi",
+    "Tshilenge"
+   ]
+  },
+  {
+   "name": "Kinshasa",
+   "unit": "commune",
+   "territories": [
+    "Bandalungwa",
+    "Barumbu",
+    "Bumbu",
+    "Gombe",
+    "Kalamu",
+    "Kasa-Vubu",
+    "Kimbanseke",
+    "Kinshasa",
+    "Kintambo",
+    "Kisenso",
+    "Lemba",
+    "Limete",
+    "Lingwala",
+    "Makala",
+    "Maluku",
+    "Masina",
+    "Matete",
+    "Mont-Ngafula",
+    "Ndjili",
+    "Ngaba",
+    "Ngaliema",
+    "Ngiri-Ngiri",
+    "Nsele",
+    "Selembao"
+   ]
+  },
+  {
+   "name": "Kongo-Central",
+   "unit": "territoire",
+   "territories": [
+    "Kasangulu",
+    "Kimvula",
+    "Lukula",
+    "Luozi",
+    "Madimba",
+    "Mbanza-Ngungu",
+    "Muanda",
+    "Seke-Banza",
+    "Songololo",
+    "Tshela"
+   ]
+  },
+  {
+   "name": "Kwango",
+   "unit": "territoire",
+   "territories": [
+    "Feshi",
+    "Kahemba",
+    "Kasongo-Lunda",
+    "Kenge",
+    "Popokabaka"
+   ]
+  },
+  {
+   "name": "Kwilu",
+   "unit": "territoire",
+   "territories": [
+    "Bagata",
+    "Bulungu",
+    "Gungu",
+    "Idiofa",
+    "Masi-Manimba"
+   ]
+  },
+  {
+   "name": "Lomami",
+   "unit": "territoire",
+   "territories": [
+    "Kabinda",
+    "Kamiji",
+    "Lubao",
+    "Luilu",
+    "Ngandajika"
+   ]
+  },
+  {
+   "name": "Lualaba",
+   "unit": "territoire",
+   "territories": [
+    "Dilolo",
+    "Kapanga",
+    "Lubudi",
+    "Mutshatsha",
+    "Sandoa"
+   ]
+  },
+  {
+   "name": "Mai-Ndombe",
+   "unit": "territoire",
+   "territories": [
+    "Bolobo",
+    "Inongo",
+    "Kiri",
+    "Kutu",
+    "Kwamouth",
+    "Mushie",
+    "Oshwe",
+    "Yumbi"
+   ]
+  },
+  {
+   "name": "Maniema",
+   "unit": "territoire",
+   "territories": [
+    "Kabambare",
+    "Kailo",
+    "Kasongo",
+    "Kibombo",
+    "Lubutu",
+    "Pangi",
+    "Punia"
+   ]
+  },
+  {
+   "name": "Mongala",
+   "unit": "territoire",
+   "territories": [
+    "Bongandanga",
+    "Bumba",
+    "Lisala"
+   ]
+  },
+  {
+   "name": "Nord-Kivu",
+   "unit": "territoire",
+   "territories": [
+    "Beni",
+    "Lubero",
+    "Masisi",
+    "Nyiragongo",
+    "Rutshuru",
+    "Walikale"
+   ]
+  },
+  {
+   "name": "Nord-Ubangi",
+   "unit": "territoire",
+   "territories": [
+    "Bosobolo",
+    "Businga",
+    "Mobayi-Mbongo",
+    "Yakoma"
+   ]
+  },
+  {
+   "name": "Sankuru",
+   "unit": "territoire",
+   "territories": [
+    "Katako-Kombe",
+    "Kole",
+    "Lodja",
+    "Lomela",
+    "Lubefu",
+    "Lusambo"
+   ]
+  },
+  {
+   "name": "Sud-Kivu",
+   "unit": "territoire",
+   "territories": [
+    "Fizi",
+    "Idjwi",
+    "Kabare",
+    "Kalehe",
+    "Mwenga",
+    "Shabunda",
+    "Uvira",
+    "Walungu"
+   ]
+  },
+  {
+   "name": "Sud-Ubangi",
+   "unit": "territoire",
+   "territories": [
+    "Budjala",
+    "Gemena",
+    "Kungu",
+    "Libenge"
+   ]
+  },
+  {
+   "name": "Tanganyika",
+   "unit": "territoire",
+   "territories": [
+    "Kabalo",
+    "Kalemie",
+    "Kongolo",
+    "Manono",
+    "Moba",
+    "Nyunzu"
+   ]
+  },
+  {
+   "name": "Tshopo",
+   "unit": "territoire",
+   "territories": [
+    "Bafwasende",
+    "Banalia",
+    "Basoko",
+    "Isangi",
+    "Opala",
+    "Ubundu",
+    "Yahuma"
+   ]
+  },
+  {
+   "name": "Tshuapa",
+   "unit": "territoire",
+   "territories": [
+    "Befale",
+    "Boende",
+    "Bokungu",
+    "Djolu",
+    "Ikela",
+    "Monkoto"
+   ]
+  }
+ ]
+}

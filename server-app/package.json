@@ -1,0 +1,45 @@
+{
+  "name": "server-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/index.js",
+    "start": "node --env-file-if-exists=.env src/index.js",
+    "db:migrate": "prisma migrate dev && prisma generate",
+    "db:deploy": "prisma migrate deploy && prisma generate",
+    "db:generate": "prisma generate",
+    "create-admin": "node --env-file-if-exists=.env src/scripts/create-admin.js",
+    "test": "NODE_ENV=test DATABASE_URL=file:./data/test.db STORAGE_DIR=./data/test-storage BACKUP_DIR=./data/test-backups AUTO_BACKUP_HOURS=0 sh -c \"rm -rf ./data/test.db ./data/test-storage ./data/test-backups && prisma migrate deploy >/dev/null && node --test --test-concurrency=1 test/*.test.js\"",
+    "postinstall": "prisma generate",
+    "seed": "node --env-file-if-exists=.env src/scripts/seed.js",
+    "backup": "node --env-file-if-exists=.env src/scripts/preservation.js backup",
+    "backup:verify": "node --env-file-if-exists=.env src/scripts/preservation.js verify",
+    "backup:restore-test": "node --env-file-if-exists=.env src/scripts/preservation.js restore-test",
+    "integrity-check": "node --env-file-if-exists=.env src/scripts/preservation.js integrity",
+    "restore": "node --env-file-if-exists=.env src/scripts/preservation.js restore",
+    "db:mysql:schema": "node prisma/mysql/build-schema.js",
+    "db:mysql:deploy": "prisma migrate deploy --config prisma.mysql.config.ts && prisma generate --config prisma.mysql.config.ts",
+    "db:mysql:generate": "prisma generate --config prisma.mysql.config.ts"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.10.1",
+    "@prisma/adapter-mariadb": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "better-sqlite3": "^13.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "multer": "^2.5.0",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "dotenv": "^18.0.9",
+    "prisma": "^7.10.1",
+    "supertest": "^7.3.1"
+  }
+}

@@ -1,0 +1,21 @@
+# Service systemd de l'API URITHI (installé dans /etc/systemd/system/).
+[Unit]
+Description=URITHI - API (Node.js)
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=urithi
+Group=urithi
+WorkingDirectory=/opt/urithi/app/server-app
+EnvironmentFile=/opt/urithi/urithi.env
+ExecStart=/opt/urithi/runtime/node/bin/node src/index.js
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=full
+ReadWritePaths=/opt/urithi/data
+
+[Install]
+WantedBy=multi-user.target

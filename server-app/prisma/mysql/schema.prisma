@@ -1,0 +1,1133 @@
+// FICHIER GÉNÉRÉ par prisma/mysql/build-schema.js : ne pas modifier à la main.
+// Modifier prisma/schema.prisma puis lancer « npm run db:mysql:schema ».
+
+// URITHI — modèle de données.
+// Les numéros de section (§) renvoient au cahier des charges (docs/CAHIER_DES_CHARGES.md).
+// Voir aussi docs/CONCEPTION.md.
+//
+// Les champs JSON sont stockés en texte (SQLite) et sérialisés par l'application.
+
+generator client {
+  provider               = "prisma-client"
+  output                 = "../../src/generated/prisma"
+  runtime                = "nodejs"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// Rôles définis par le cahier des charges (§32 à §37).
+// Un utilisateur peut cumuler plusieurs rôles (§38).
+enum Role {
+  SUPER_ADMIN
+  RESPONSABLE_COLLECTE
+  COLLECTEUR
+  TRANSCRIPTEUR
+  TRADUCTEUR
+  VALIDATEUR
+  EDITEUR
+}
+
+model User {
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  displayName        String @db.LongText
+  passwordHash       String @db.LongText
+  isActive           Boolean   @default(true)
+  mustChangePassword Boolean   @default(true)
+  failedLoginCount   Int       @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  createdById        String?
+  createdBy          User?     @relation("UserCreatedBy", fields: [createdById], references: [id])
+  createdUsers       User[]    @relation("UserCreatedBy")
+
+  roles       UserRole[]
+  sessions    Session[]
+  auditLogs   AuditLog[]
+  storedFiles StoredFile[]
+
+  itemsCreated        CulturalItem[]       @relation("ItemCreatedBy")
+  itemsUpdated        CulturalItem[]       @relation("ItemUpdatedBy")
+  itemVersions        ItemVersion[]
+  decisions           ValidationDecision[]
+  accessGrants        AccessGrant[]        @relation("GrantUser")
+  accessGrantsGiven   AccessGrant[]        @relation("GrantGrantedBy")
+  mediaCreated        MediaAsset[]
+  textRevisions       TextRevision[]
+  textsVerified       TextDocument[]       @relation("TextVerifiedBy")
+  resourcePersons     ResourcePerson[]
+  consentsCollected   Consent[]
+  missionsResponsible Mission[]            @relation("MissionResponsible")
+  missionMemberships  MissionMember[]
+  fieldNotes          FieldNote[]
+  missionReports      MissionReport[]
+  takedownsHandled    TakedownRequest[]
+  backupRuns          BackupRun[]
+  dossiers            CollectionDossier[]  @relation("DossierCollector")
+  dossierEvents       DossierEvent[]
+  dossierVersions     DossierVersion[]
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String
+  role      Role
+  grantedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+}
+
+// Seule l'empreinte SHA-256 du jeton est stockée : une fuite de la base
+// ne permet pas de réutiliser les sessions.
+model Session {
+  id         String    @id @default(uuid())
+  tokenHash  String    @unique
+  userId     String
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime
+  lastSeenAt DateTime  @default(now())
+  revokedAt  DateTime?
+  ip         String? @db.LongText
+  userAgent  String? @db.LongText
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Journal d'audit en ajout seul (§69). Chaque entrée contient l'empreinte de
+// la précédente : toute modification ou suppression rompt la chaîne et est
+// détectée par la vérification.
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime
+  actorId    String?
+  action     String
+  entityType String?
+  entityId   String?
+  details    String? @db.LongText
+  ip         String? @db.LongText
+  prevHash   String @db.LongText
+  hash       String   @unique
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+// Fichier original conservé tel quel (§28, §53). Jamais remplacé : toute
+// version dérivée sera un nouveau StoredFile relié à son original.
+model StoredFile {
+  id              String       @id @default(uuid())
+  originalName    String @db.LongText
+  mimeType        String @db.LongText
+  sizeBytes       Int
+  sha256          String
+  storageKey      String       @unique
+  derivedFromId   String?
+  derivedFrom     StoredFile?  @relation("Derivation", fields: [derivedFromId], references: [id], onDelete: Restrict)
+  derivatives     StoredFile[] @relation("Derivation")
+  uploadedById    String
+  uploadedBy      User         @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  createdAt       DateTime     @default(now())
+  lastCheckedAt   DateTime?
+  integrityStatus String       @default("UNCHECKED")
+  transformation  String? @db.LongText
+
+  mediaOriginal  MediaAsset?  @relation("MediaOriginal")
+  mediaWeb       MediaAsset[] @relation("MediaWeb")
+  mediaThumbnail MediaAsset[] @relation("MediaThumbnail")
+  consentDocs    Consent[]    @relation("ConsentDocument")
+
+  @@index([sha256])
+}
+
+// ---------------------------------------------------------------------------
+// Référentiels : territoire, langues, catégories (§9 à §12)
+// ---------------------------------------------------------------------------
+
+enum PlaceType {
+  COUNTRY
+  PROVINCE
+  TERRITORY
+  CITY
+  COMMUNE
+  CHIEFDOM
+  LOCALITY
+  VILLAGE
+  OTHER
+}
+
+model Place {
+  id        String    @id @default(uuid())
+  name      String
+  type      PlaceType
+  parentId  String?
+  parent    Place?    @relation("PlaceHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children  Place[]   @relation("PlaceHierarchy")
+  notes     String? @db.LongText
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  communities CommunityPlace[]
+  items       ItemPlace[]
+  media       MediaAsset[]
+  missions    Mission[]
+
+  @@unique([parentId, name])
+  @@index([type])
+}
+
+model Language {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  isoCode   String? @db.LongText
+  parentId  String?
+  parent    Language?  @relation("LanguageVariant", fields: [parentId], references: [id], onDelete: Restrict)
+  variants  Language[] @relation("LanguageVariant")
+  notes     String? @db.LongText
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  communities CommunityLanguage[]
+  items       CulturalItem[]
+  texts       TextDocument[]
+}
+
+// Catégories administrables et extensibles (§11, §12). `fieldsSchema` décrit
+// les champs spécialisés (§20 à §23) que la catégorie ajoute aux fiches.
+model Category {
+  id           String     @id @default(uuid())
+  slug         String     @unique
+  name         String @db.LongText
+  description  String? @db.LongText
+  code         String? @db.LongText
+  parentId     String?
+  parent       Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children     Category[] @relation("CategoryTree")
+  position     Int        @default(0)
+  isActive     Boolean    @default(true)
+  fieldsSchema String? @db.LongText
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  items           CulturalItem[]
+  questionnaires  Questionnaire[]
+  dossierSections DossierSectionDef[]
+}
+
+// ---------------------------------------------------------------------------
+// Communautés (§10, §57)
+// ---------------------------------------------------------------------------
+
+enum DocumentationStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  PARTIAL
+  ADVANCED
+}
+
+model Community {
+  id                  String              @id @default(uuid())
+  slug                String              @unique
+  name                String @db.LongText
+  summary             String? @db.LongText
+  description         String? @db.LongText
+  history             String? @db.LongText
+  documentationStatus DocumentationStatus @default(NOT_STARTED)
+  documentationNote   String? @db.LongText
+  isPublished         Boolean             @default(false)
+  searchText          String @db.LongText              @default("")
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  names        CommunityName[]
+  places       CommunityPlace[]
+  languages    CommunityLanguage[]
+  items        ItemCommunity[]
+  missions     Mission[]
+  persons      ResourcePerson[]
+  dossiers     CollectionDossier[]
+  gameMissions GameMission[]
+}
+
+enum NameKind {
+  PRIMARY
+  AUTONYM
+  EXONYM
+  HISTORICAL
+  VARIANT
+}
+
+model CommunityName {
+  id          String    @id @default(uuid())
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  name        String
+  kind        NameKind  @default(VARIANT)
+  notes       String? @db.LongText
+  sourceId    String?
+  source      Source?   @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([communityId, name])
+}
+
+model CommunityPlace {
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  placeId     String
+  place       Place     @relation(fields: [placeId], references: [id], onDelete: Restrict)
+  notes       String? @db.LongText
+  sourceId    String?
+  source      Source?   @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@id([communityId, placeId])
+}
+
+model CommunityLanguage {
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  languageId  String
+  language    Language  @relation(fields: [languageId], references: [id], onDelete: Restrict)
+  notes       String? @db.LongText
+
+  @@id([communityId, languageId])
+}
+
+// ---------------------------------------------------------------------------
+// Sources (§60, §61)
+// ---------------------------------------------------------------------------
+
+enum SourceType {
+  BOOK
+  ARTICLE
+  THESIS
+  ARCHIVE
+  REPORT
+  PHOTOGRAPH
+  TESTIMONY
+  RECORDING
+  ADMINISTRATIVE
+  WEBSITE
+  COLLECTION
+  FIELDWORK
+  OTHER
+}
+
+enum SourceStatus {
+  ACTIVE
+  CONTESTED
+  UNAVAILABLE
+  REPLACED
+}
+
+model Source {
+  id         String       @id @default(uuid())
+  type       SourceType
+  title      String @db.LongText
+  author     String? @db.LongText
+  date       String? @db.LongText
+  publisher  String? @db.LongText
+  provenance String? @db.LongText
+  reference  String? @db.LongText
+  url        String? @db.LongText
+  rights     String? @db.LongText
+  status     SourceStatus @default(ACTIVE)
+  statusNote String? @db.LongText
+  isPublic   Boolean      @default(true)
+  notes      String? @db.LongText
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  items           ItemSource[]
+  communityNames  CommunityName[]
+  communityPlaces CommunityPlace[]
+}
+
+// ---------------------------------------------------------------------------
+// Personnes ressources et consentements (§25 étape 3, §46, §49)
+// Les données personnelles ne sont jamais exposées publiquement.
+// ---------------------------------------------------------------------------
+
+enum AttributionMode {
+  NAME
+  PSEUDONYM
+  ANONYMOUS
+}
+
+model ResourcePerson {
+  id              String          @id @default(uuid())
+  fullName        String @db.LongText
+  publicName      String? @db.LongText
+  attributionMode AttributionMode @default(ANONYMOUS)
+  communityId     String?
+  community       Community?      @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  locality        String? @db.LongText
+  contact         String? @db.LongText
+  birthYear       Int?
+  isMinor         Boolean         @default(false)
+  guardianName    String? @db.LongText
+  notes           String? @db.LongText
+  createdById     String
+  createdBy       User            @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  consents Consent[]
+  items    CulturalItem[]
+  missions MissionResourcePerson[]
+}
+
+model Consent {
+  id                     String          @id @default(uuid())
+  resourcePersonId       String?
+  resourcePerson         ResourcePerson? @relation(fields: [resourcePersonId], references: [id], onDelete: Restrict)
+  missionId              String?
+  mission                Mission?        @relation(fields: [missionId], references: [id], onDelete: SetNull)
+  collectedById          String
+  collectedBy            User            @relation(fields: [collectedById], references: [id], onDelete: Restrict)
+  collectedAt            DateTime
+  // Droits distincts (§46)
+  canStore               Boolean         @default(true)
+  canProcess             Boolean         @default(false)
+  canPublish             Boolean         @default(false)
+  canTranslate           Boolean         @default(false)
+  canReuse               Boolean         @default(false)
+  // Supports autorisés (§25)
+  allowsInterview        Boolean         @default(true)
+  allowsAudio            Boolean         @default(false)
+  allowsVideo            Boolean         @default(false)
+  allowsPhoto            Boolean         @default(false)
+  allowsTranscription    Boolean         @default(false)
+  attribution            AttributionMode @default(ANONYMOUS)
+  restrictions           String? @db.LongText
+  guardianConsent        Boolean         @default(false)
+  communityAuthorization String? @db.LongText
+  validFrom              DateTime?
+  validUntil             DateTime?
+  revokedAt              DateTime?
+  revocationReason       String? @db.LongText
+  documentFileId         String?
+  documentFile           StoredFile?     @relation("ConsentDocument", fields: [documentFileId], references: [id], onDelete: Restrict)
+  notes                  String? @db.LongText
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  items ItemConsent[]
+  media MediaAsset[]
+}
+
+// ---------------------------------------------------------------------------
+// Fiches culturelles, versions et relations (§18 à §23, §39 à §45)
+// ---------------------------------------------------------------------------
+
+enum ItemStatus {
+  DRAFT
+  IN_PREPARATION
+  SUBMITTED
+  NEEDS_COMPLETION
+  IN_TRANSCRIPTION
+  IN_TRANSLATION
+  IN_DOCUMENT_REVIEW
+  IN_CULTURAL_REVIEW
+  IN_EDITORIAL_REVIEW
+  AWAITING_AUTHORIZATION
+  VALIDATED
+  SCHEDULED
+  PUBLISHED
+  UNDER_REVISION
+  SUSPENDED
+  WITHDRAWN
+  ARCHIVED
+}
+
+enum AccessLevel {
+  PUBLIC
+  CONTRIBUTORS
+  TEAM
+  SPECIAL
+  PRIVATE
+}
+
+enum VerificationStatus {
+  SOURCED
+  TESTIMONY
+  ORAL_TRADITION
+  CORROBORATED
+  CONTESTED
+  HYPOTHESIS
+  INCOMPLETE
+}
+
+enum DateKind {
+  EXACT
+  APPROXIMATE
+  PERIOD
+  UNKNOWN
+}
+
+model CulturalItem {
+  id                 String             @id @default(uuid())
+  slug               String             @unique
+  title              String @db.LongText
+  originalTitle      String? @db.LongText
+  summary            String? @db.LongText
+  body               String? @db.LongText
+  fields             String? @db.LongText
+  keywords           String? @db.LongText
+  categoryId         String
+  category           Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  originalLanguageId String?
+  originalLanguage   Language?          @relation(fields: [originalLanguageId], references: [id], onDelete: SetNull)
+  dateKind           DateKind           @default(UNKNOWN)
+  dateValue          String? @db.LongText
+  dateEnd            String? @db.LongText
+  verificationStatus VerificationStatus @default(INCOMPLETE)
+  status             ItemStatus         @default(DRAFT)
+  accessLevel        AccessLevel        @default(PRIVATE)
+  isSensitive        Boolean            @default(false)
+  resourcePersonId   String?
+  resourcePerson     ResourcePerson?    @relation(fields: [resourcePersonId], references: [id], onDelete: SetNull)
+  missionId          String?
+  mission            Mission?           @relation(fields: [missionId], references: [id], onDelete: SetNull)
+  currentVersion     Int                @default(1)
+  publishedVersionId String?            @unique
+  publishedVersion   ItemVersion?       @relation("PublishedVersion", fields: [publishedVersionId], references: [id], onDelete: Restrict)
+  publishedAt        DateTime?
+  scheduledAt        DateTime?
+  searchText         String @db.LongText             @default("")
+  createdById        String
+  createdBy          User               @relation("ItemCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedById        String
+  updatedBy          User               @relation("ItemUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  // Dossier de collecte d'où provient la fiche, et partie du dossier publiée
+  // (simple référence, sans clé étrangère : ajout sans reconstruction de table).
+  dossierId          String?
+  dossierUnit        String? @db.LongText
+
+  communities   ItemCommunity[]
+  places        ItemPlace[]
+  sources       ItemSource[]
+  media         ItemMedia[]
+  consents      ItemConsent[]
+  versions      ItemVersion[]        @relation("ItemVersions")
+  decisions     ValidationDecision[]
+  relationsFrom ItemRelation[]       @relation("RelationFrom")
+  relationsTo   ItemRelation[]       @relation("RelationTo")
+  accessGrants  AccessGrant[]
+  texts         TextDocument[]
+  takedowns     TakedownRequest[]
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([dossierId])
+}
+
+// Instantané complet d'une fiche (§44). La version publiée est celle que voit
+// le public : les modifications ultérieures restent internes jusqu'à leur
+// nouvelle validation.
+model ItemVersion {
+  id          String       @id @default(uuid())
+  itemId      String
+  item        CulturalItem @relation("ItemVersions", fields: [itemId], references: [id], onDelete: Cascade)
+  version     Int
+  snapshot    String @db.LongText
+  reason      String @db.LongText
+  publicNote  String? @db.LongText
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  createdAt   DateTime     @default(now())
+  publishedAt DateTime?
+
+  publishedFor CulturalItem? @relation("PublishedVersion")
+
+  @@unique([itemId, version])
+}
+
+model ItemCommunity {
+  itemId      String
+  item        CulturalItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  communityId String
+  community   Community    @relation(fields: [communityId], references: [id], onDelete: Restrict)
+
+  @@id([itemId, communityId])
+}
+
+model ItemPlace {
+  itemId  String
+  item    CulturalItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  placeId String
+  place   Place        @relation(fields: [placeId], references: [id], onDelete: Restrict)
+
+  @@id([itemId, placeId])
+}
+
+model ItemSource {
+  itemId   String
+  item     CulturalItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  sourceId String
+  source   Source       @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  supports String? @db.LongText
+  locator  String? @db.LongText
+
+  @@id([itemId, sourceId])
+}
+
+model ItemMedia {
+  itemId   String
+  item     CulturalItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  mediaId  String
+  media    MediaAsset   @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  position Int          @default(0)
+  caption  String? @db.LongText
+
+  @@id([itemId, mediaId])
+}
+
+model ItemConsent {
+  itemId    String
+  item      CulturalItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  consentId String
+  consent   Consent      @relation(fields: [consentId], references: [id], onDelete: Restrict)
+
+  @@id([itemId, consentId])
+}
+
+enum RelationType {
+  RELATED
+  VARIANT_OF
+  PART_OF
+  INGREDIENT
+  INSTRUMENT
+  COSTUME
+  SONG
+  CONTEXT
+  TESTIMONY_FOR
+}
+
+// Relations documentées entre fiches (§15, §42). Jamais créées automatiquement.
+model ItemRelation {
+  id        String       @id @default(uuid())
+  fromId    String
+  from      CulturalItem @relation("RelationFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  toId      String
+  to        CulturalItem @relation("RelationTo", fields: [toId], references: [id], onDelete: Cascade)
+  type      RelationType @default(RELATED)
+  notes     String? @db.LongText
+  createdAt DateTime     @default(now())
+
+  @@unique([fromId, toId, type])
+}
+
+// Accès nominatif aux fiches de niveau TEAM ou SPECIAL (§47).
+model AccessGrant {
+  id          String       @id @default(uuid())
+  itemId      String
+  item        CulturalItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User         @relation("GrantUser", fields: [userId], references: [id], onDelete: Cascade)
+  grantedById String
+  grantedBy   User         @relation("GrantGrantedBy", fields: [grantedById], references: [id], onDelete: Restrict)
+  reason      String? @db.LongText
+  expiresAt   DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@unique([itemId, userId])
+}
+
+enum DecisionType {
+  TRANSITION
+  APPROVE
+  REJECT
+  REQUEST_CHANGES
+  COMMENT
+}
+
+model ValidationDecision {
+  id               String       @id @default(uuid())
+  itemId           String
+  item             CulturalItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  type             DecisionType
+  fromStatus       ItemStatus?
+  toStatus         ItemStatus?
+  reason           String? @db.LongText
+  comments         String? @db.LongText
+  requestedChanges String? @db.LongText
+  version          Int
+  authorId         String
+  author           User         @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  createdAt        DateTime     @default(now())
+
+  @@index([itemId])
+}
+
+// ---------------------------------------------------------------------------
+// Médias, transcriptions, traductions (§17, §28 à §30)
+// ---------------------------------------------------------------------------
+
+enum MediaKind {
+  PHOTO
+  VIDEO
+  AUDIO
+  DOCUMENT
+}
+
+model MediaAsset {
+  id                 String      @id @default(uuid())
+  kind               MediaKind
+  title              String @db.LongText
+  description        String? @db.LongText
+  originalFileId     String      @unique
+  originalFile       StoredFile  @relation("MediaOriginal", fields: [originalFileId], references: [id], onDelete: Restrict)
+  webFileId          String?
+  webFile            StoredFile? @relation("MediaWeb", fields: [webFileId], references: [id], onDelete: Restrict)
+  thumbnailFileId    String?
+  thumbnailFile      StoredFile? @relation("MediaThumbnail", fields: [thumbnailFileId], references: [id], onDelete: Restrict)
+  accessLevel        AccessLevel @default(PRIVATE)
+  consentId          String?
+  consent            Consent?    @relation(fields: [consentId], references: [id], onDelete: Restrict)
+  publicationCleared Boolean     @default(false)
+  rightsStatement    String? @db.LongText
+  credit             String? @db.LongText
+  dateKind           DateKind    @default(UNKNOWN)
+  dateValue          String? @db.LongText
+  placeId            String?
+  place              Place?      @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  peopleDepicted     String? @db.LongText
+  context            String? @db.LongText
+  provenance         String? @db.LongText
+  missionId          String?
+  mission            Mission?    @relation(fields: [missionId], references: [id], onDelete: SetNull)
+  collectedAt        DateTime?
+  createdById        String
+  createdBy          User        @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  items     ItemMedia[]
+  texts     TextDocument[]
+  takedowns TakedownRequest[]
+
+  @@index([kind])
+}
+
+enum TextKind {
+  TRANSCRIPTION
+  TRANSLATION
+}
+
+enum TextMethod {
+  MANUAL
+  AUTOMATIC
+}
+
+enum TextVerification {
+  UNVERIFIED
+  VERIFIED
+}
+
+// Transcription ou traduction, versionnée indépendamment de l'original (§29, §30).
+model TextDocument {
+  id              String           @id @default(uuid())
+  kind            TextKind
+  mediaId         String?
+  media           MediaAsset?      @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  itemId          String?
+  item            CulturalItem?    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  translationOfId String?
+  translationOf   TextDocument?    @relation("TranslationOf", fields: [translationOfId], references: [id], onDelete: Restrict)
+  translations    TextDocument[]   @relation("TranslationOf")
+  languageId      String
+  language        Language         @relation(fields: [languageId], references: [id], onDelete: Restrict)
+  method          TextMethod       @default(MANUAL)
+  verification    TextVerification @default(UNVERIFIED)
+  verifiedById    String?
+  verifiedBy      User?            @relation("TextVerifiedBy", fields: [verifiedById], references: [id], onDelete: Restrict)
+  verifiedAt      DateTime?
+  translatorRole  String? @db.LongText
+  notes           String? @db.LongText
+  currentVersion  Int              @default(1)
+  isPublic        Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  revisions TextRevision[]
+}
+
+model TextRevision {
+  id        String       @id @default(uuid())
+  textId    String
+  text      TextDocument @relation(fields: [textId], references: [id], onDelete: Cascade)
+  version   Int
+  content   String @db.LongText
+  reason    String @db.LongText
+  authorId  String
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  createdAt DateTime     @default(now())
+
+  @@unique([textId, version])
+}
+
+// ---------------------------------------------------------------------------
+// Missions de collecte (§24 à §27)
+// ---------------------------------------------------------------------------
+
+enum MissionStatus {
+  PLANNED
+  PREPARATION
+  IN_PROGRESS
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+model Mission {
+  id                String        @id @default(uuid())
+  code              String        @unique
+  title             String @db.LongText
+  objective         String @db.LongText
+  communityId       String?
+  community         Community?    @relation(fields: [communityId], references: [id], onDelete: Restrict)
+  placeId           String?
+  place             Place?        @relation(fields: [placeId], references: [id], onDelete: Restrict)
+  categoryIds       String? @db.LongText
+  startDate         DateTime?
+  endDate           DateTime?
+  responsibleId     String
+  responsible       User          @relation("MissionResponsible", fields: [responsibleId], references: [id], onDelete: Restrict)
+  status            MissionStatus @default(PLANNED)
+  requiredDocuments String? @db.LongText
+  safetyGuidelines  String? @db.LongText
+  expectedResults   String? @db.LongText
+  budget            String? @db.LongText
+  difficulties      String? @db.LongText
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  closedAt          DateTime?
+
+  members         MissionMember[]
+  resourcePersons MissionResourcePerson[]
+  questionnaires  MissionQuestionnaire[]
+  notes           FieldNote[]
+  reports         MissionReport[]
+  items           CulturalItem[]
+  media           MediaAsset[]
+  consents        Consent[]
+  dossiers        CollectionDossier[]
+}
+
+model MissionMember {
+  missionId String
+  mission   Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  role      String   @default("COLLECTEUR")
+  addedAt   DateTime @default(now())
+
+  @@id([missionId, userId])
+}
+
+model MissionResourcePerson {
+  missionId        String
+  mission          Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  resourcePersonId String
+  resourcePerson   ResourcePerson @relation(fields: [resourcePersonId], references: [id], onDelete: Restrict)
+
+  @@id([missionId, resourcePersonId])
+}
+
+model Questionnaire {
+  id          String    @id @default(uuid())
+  slug        String    @unique
+  title       String @db.LongText
+  description String? @db.LongText
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  questions   String @db.LongText
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  missions MissionQuestionnaire[]
+}
+
+model MissionQuestionnaire {
+  missionId       String
+  mission         Mission       @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  questionnaireId String
+  questionnaire   Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Restrict)
+
+  @@id([missionId, questionnaireId])
+}
+
+model FieldNote {
+  id         String   @id @default(uuid())
+  missionId  String
+  mission    Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  content    String @db.LongText
+  unverified String? @db.LongText
+  createdAt  DateTime @default(now())
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWED
+}
+
+model MissionReport {
+  id           String       @id @default(uuid())
+  missionId    String
+  mission      Mission      @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User         @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  summary      String @db.LongText
+  results      String? @db.LongText
+  difficulties String? @db.LongText
+  status       ReportStatus @default(DRAFT)
+  submittedAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Signalements, permissions configurables, sauvegardes (§48, §37, §52)
+// ---------------------------------------------------------------------------
+
+enum TakedownReason {
+  ERROR
+  MISATTRIBUTION
+  CONSENT
+  PRIVACY
+  CULTURAL_RESTRICTION
+  UNAUTHORIZED_USE
+  MISLEADING
+  OTHER
+}
+
+enum TakedownStatus {
+  RECEIVED
+  UNDER_REVIEW
+  CONTENT_SUSPENDED
+  RESOLVED_CORRECTED
+  RESOLVED_WITHDRAWN
+  REJECTED
+}
+
+model TakedownRequest {
+  id                String         @id @default(uuid())
+  itemId            String?
+  item              CulturalItem?  @relation(fields: [itemId], references: [id], onDelete: SetNull)
+  mediaId           String?
+  media             MediaAsset?    @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  pageUrl           String? @db.LongText
+  requesterName     String @db.LongText
+  requesterContact  String @db.LongText
+  requesterRelation String? @db.LongText
+  reason            TakedownReason
+  description       String @db.LongText
+  status            TakedownStatus @default(RECEIVED)
+  resolution        String? @db.LongText
+  handledById       String?
+  handledBy         User?          @relation(fields: [handledById], references: [id], onDelete: Restrict)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([status])
+}
+
+model RolePermission {
+  role       Role
+  permission String
+
+  @@id([role, permission])
+}
+
+enum BackupKind {
+  BACKUP
+  RESTORE_TEST
+  INTEGRITY_CHECK
+}
+
+enum BackupStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+model BackupRun {
+  id            String       @id @default(uuid())
+  kind          BackupKind
+  status        BackupStatus @default(RUNNING)
+  location      String? @db.LongText
+  summary       String? @db.LongText
+  error         String? @db.LongText
+  startedAt     DateTime     @default(now())
+  finishedAt    DateTime?
+  triggeredById String?
+  triggeredBy   User?        @relation(fields: [triggeredById], references: [id], onDelete: Restrict)
+}
+
+// ---------------------------------------------------------------------------
+// Dossiers de collecte : formulaire en étapes rempli par un collecteur,
+// vérifié et publié par l'administrateur (voir docs/CONCEPTION.md).
+// ---------------------------------------------------------------------------
+
+enum DossierStatus {
+  DRAFT
+  IN_PROGRESS
+  SUBMITTED
+  UNDER_REVIEW
+  CHANGES_REQUESTED
+  VALIDATED
+  PUBLISHED
+  ARCHIVED
+}
+
+// Étapes du formulaire. Les étapes de référence sont créées au démarrage ;
+// l'administrateur peut les adapter ou en ajouter. `fields` et `entry` sont
+// des descriptions JSON des champs (voir services/dossierSchema.js).
+model DossierSectionDef {
+  id              String    @id @default(uuid())
+  key             String    @unique
+  title           String @db.LongText
+  description     String? @db.LongText
+  kind            String    @default("standard")
+  position        Int       @default(0)
+  isActive        Boolean   @default(true)
+  isDefault       Boolean   @default(false)
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  fields          String @db.LongText    @default("[]")
+  entry           String? @db.LongText
+  mediaHint       String? @db.LongText
+  sensitiveNotice Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model CollectionDossier {
+  id                    String        @id @default(uuid())
+  title                 String? @db.LongText
+  communityId           String?
+  community             Community?    @relation(fields: [communityId], references: [id], onDelete: Restrict)
+  proposedCommunityName String? @db.LongText
+  status                DossierStatus @default(DRAFT)
+  // Contenu des étapes, revues par étape et correspondance avec les fiches publiées.
+  data                  String @db.LongText        @default("{}")
+  reviews               String @db.LongText        @default("{}")
+  publication           String @db.LongText        @default("{}")
+  progress              Int           @default(0)
+  version               Int           @default(1)
+  collectorId           String
+  collector             User          @relation("DossierCollector", fields: [collectorId], references: [id], onDelete: Restrict)
+  missionId             String?
+  mission               Mission?      @relation(fields: [missionId], references: [id], onDelete: SetNull)
+  submittedAt           DateTime?
+  validatedAt           DateTime?
+  publishedAt           DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  events   DossierEvent[]
+  versions DossierVersion[]
+
+  @@index([status])
+  @@index([collectorId])
+  @@index([communityId])
+}
+
+// Historique d'un dossier : décisions, corrections, commentaires.
+model DossierEvent {
+  id         String            @id @default(uuid())
+  dossierId  String
+  dossier    CollectionDossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  type       String @db.LongText
+  sectionKey String? @db.LongText
+  fromStatus DossierStatus?
+  toStatus   DossierStatus?
+  comment    String? @db.LongText
+  version    Int
+  authorId   String
+  author     User              @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  createdAt  DateTime          @default(now())
+
+  @@index([dossierId])
+}
+
+// Instantané du contenu à chaque étape décisive (soumission, demande de
+// corrections, validation, publication).
+model DossierVersion {
+  id        String            @id @default(uuid())
+  dossierId String
+  dossier   CollectionDossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  version   Int
+  data      String @db.LongText
+  reason    String? @db.LongText
+  authorId  String
+  author    User              @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  createdAt DateTime          @default(now())
+
+  @@unique([dossierId, version])
+}
+
+// ---------------------------------------------------------------------------
+// Module Jeux : « URITHI – Les Gardiens de l'Héritage »
+// ---------------------------------------------------------------------------
+
+enum GameMissionStatus {
+  DRAFT
+  PUBLISHED
+  DISABLED
+}
+
+// Mission du jeu. Les étapes (JSON) désignent des éléments de l'environnement
+// 3D, eux-mêmes reliés aux contenus documentés d'URITHI (fiches de l'atlas,
+// fiches culturelles publiées). Les missions fournies avec le jeu (builtin)
+// peuvent être modifiées ou désactivées, pas supprimées.
+model GameMission {
+  id          String            @id @default(uuid())
+  slug        String            @unique
+  title       String @db.LongText
+  description String @db.LongText
+  objective   String @db.LongText
+  mode        String @db.LongText
+  environment String @db.LongText
+  steps       String @db.LongText
+  rewardXp    Int               @default(100)
+  badge       String? @db.LongText
+  communityId String?
+  community   Community?        @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  contentRefs String @db.LongText            @default("[]")
+  status      GameMissionStatus @default(DRAFT)
+  position    Int               @default(0)
+  builtin     Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([status])
+}
+
+// Statistiques d'utilisation anonymes, agrégées par jour (aucune donnée
+// personnelle : la progression des joueurs reste dans leur navigateur).
+model GameStat {
+  id      String @id @default(uuid())
+  day     String
+  event   String
+  mission String @default("")
+  count   Int    @default(0)
+
+  @@unique([day, event, mission])
+}
