@@ -2,7 +2,7 @@ import { ArrowDown, ArrowUp, ChevronDown, Copy, Plus, ShieldAlert, Trash2, Uploa
 import { useState } from 'react'
 import { MultiSelect } from '../../../components/ui.jsx'
 import { MEDIA_KIND_LABELS } from '../../../labels.js'
-import { findProvince, normalizeText, PROVINCES, territoriesInText } from '../../../data/rdcDivisions.js'
+import { findProvince, normalizeText, PROVINCES, provincesOf, territoriesInText } from '../../../data/rdcDivisions.js'
 import { t } from '../../../i18n/index.js'
 import { CONTENT_KINDS, defTitle, FIELD_STATUS_LABELS, fieldHelp, fieldLabel, isFilled, newEntryId, optionLabel, tDef } from './dossierLogic.js'
 
@@ -235,51 +235,75 @@ function RelationInput({ def, field, label, help, value, onChange, ctx }) {
   )
 }
 
-// Province (liste des 26 provinces) et territoires de cette province (cases à
-// cocher, plusieurs possibles). Changer de province demande confirmation
-// avant d'effacer les territoires cochés ; un ancien texte libre reste
-// affiché jusqu'à ce que le collecteur le remplace.
+// Provinces (une ou plusieurs parmi les 26) et territoires de ces provinces
+// (cases à cocher, regroupées par province). Une seule province est
+// enregistrée comme un texte, comme avant ; plusieurs, comme une liste.
+// Retirer une province demande confirmation avant de décocher ses
+// territoires ; un ancien texte libre reste affiché jusqu'à ce que le
+// collecteur le remplace.
+const provinceValue = (list) => (list.length > 1 ? list.map((p) => p.name) : list[0]?.name ?? '')
+
 function AdminDivisionInput({ field, label, help, value, values, onValue, fields, ctx }) {
   const provinceField = fields.find((f) => f.type === 'province')
   const territoriesField = fields.find((f) => f.type === 'territories')
-  const province = findProvince(provinceField ? values[provinceField.key] : '')
+  const provinces = provincesOf(provinceField ? values[provinceField.key] : '')
   const territories = territoriesField ? values[territoriesField.key] : null
   const checked = Array.isArray(territories) ? territories.filter((x) => String(x).trim()) : []
   const legacy = typeof territories === 'string' && territories.trim() ? territories.trim() : null
   const [query, setQuery] = useState('')
 
   if (field.type === 'province') {
-    const raw = String(value ?? '').trim()
-    const change = async (next) => {
-      if (next === province?.name) return
-      if (territoriesField && (checked.length || legacy)) {
+    const unknown = (Array.isArray(value) ? value : [value]).map((v) => String(v ?? '').trim()).filter((v) => v && !findProvince(v))
+    const add = (name) => {
+      const next = findProvince(name)
+      if (next && !provinces.includes(next)) onValue(field.key, provinceValue([...provinces, next]))
+    }
+    const remove = async (province) => {
+      const lost = checked.filter((name) => province.territories.includes(name))
+      // Dernière province retirée : un ancien texte de territoires n'a plus de sens.
+      const lostLegacy = provinces.length === 1 && legacy
+      if (territoriesField && (lost.length || lostLegacy)) {
         const ok = await ctx.confirm({
-          title: t('rdc.changerDeProvince'),
-          message: t('rdc.changerDeProvinceAide', { list: checked.length ? checked.join(', ') : legacy }),
-          confirmLabel: t('rdc.changerEtEffacer'),
+          title: t('rdc.retirerProvince', { name: province.name }),
+          message: t('rdc.retirerProvinceAide', { list: lost.length ? lost.join(', ') : legacy }),
+          confirmLabel: t('rdc.retirerEtDecocher'),
         })
         if (!ok) return
-        onValue(territoriesField.key, [])
+        onValue(territoriesField.key, lostLegacy ? [] : checked.filter((name) => !lost.includes(name)))
       }
-      onValue(field.key, next)
+      onValue(field.key, provinceValue(provinces.filter((p) => p !== province)))
     }
     return (
-      <label>
-        {label}
-        <select value={province?.name ?? ''} onChange={(e) => change(e.target.value)} disabled={ctx.readOnly}>
-          <option value="">{t('rdc.choisirUneProvince')}</option>
-          {PROVINCES.map((p) => (
-            <option key={p.name} value={p.name}>{p.name}</option>
-          ))}
-        </select>
-        {raw && !province && <small className="notice warning">{t('rdc.anciennePrecision', { text: raw })}</small>}
+      <div className="province-picker">
+        <label>
+          {label}
+          <select value="" onChange={(e) => add(e.target.value)} disabled={ctx.readOnly}>
+            <option value="">{provinces.length ? t('rdc.ajouterUneProvince') : t('rdc.choisirUneProvince')}</option>
+            {PROVINCES.filter((p) => !provinces.includes(p)).map((p) => (
+              <option key={p.name} value={p.name}>{p.name}</option>
+            ))}
+          </select>
+        </label>
+        {provinces.length > 0 && (
+          <div className="territory-selected" aria-live="polite">
+            {provinces.map((p) => (
+              <span key={p.name} className="territory-chip">
+                {p.name}
+                {!ctx.readOnly && (
+                  <button type="button" className="ghost icon-button" aria-label={t('rdc.retirer', { name: p.name })} onClick={() => remove(p)}>
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
+        {unknown.length > 0 && <small className="notice warning">{t('rdc.anciennePrecision', { text: unknown.join(', ') })}</small>}
         {help && <small className="muted">{help}</small>}
-      </label>
+      </div>
     )
   }
 
-  const unitLabel = province?.unit === 'commune' ? t('rdc.communes') : label
-  const options = (province?.territories ?? []).filter((name) => normalizeText(name).includes(normalizeText(query)))
   const set = (list) => onValue(field.key, list)
   const toggle = async (name, on) => {
     if (legacy) {
@@ -289,14 +313,17 @@ function AdminDivisionInput({ field, label, help, value, values, onValue, fields
     }
     set(on ? [...checked, name].sort((a, b) => a.localeCompare(b, 'fr')) : checked.filter((x) => x !== name))
   }
-  const recognised = legacy ? territoriesInText(province, legacy) : []
+  const recognised = legacy ? territoriesInText(provinces, legacy) : []
+  const total = provinces.reduce((n, p) => n + p.territories.length, 0)
+  const match = (name) => normalizeText(name).includes(normalizeText(query))
+  const unitLabel = provinces.length && provinces.every((p) => p.unit === 'commune') ? t('rdc.communes') : label
   return (
     <fieldset className="territory-picker">
       <legend>
         {unitLabel}
-        {province && <span className="muted small"> — {province.name}</span>}
+        {provinces.length > 0 && <span className="muted small"> — {provinces.map((p) => p.name).join(', ')}</span>}
       </legend>
-      {!province ? (
+      {!provinces.length ? (
         <p className="muted small">{t('rdc.choisirDAbord')}</p>
       ) : (
         <>
@@ -323,21 +350,34 @@ function AdminDivisionInput({ field, label, help, value, values, onValue, fields
               ))}
             </div>
           )}
-          {province.territories.length > 8 && (
-            <input type="search" className="territory-search" placeholder={t('rdc.rechercher', { n: province.territories.length })} aria-label={t('rdc.rechercher', { n: province.territories.length })} value={query} onChange={(e) => setQuery(e.target.value)} />
+          {total > 8 && (
+            <input type="search" className="territory-search" placeholder={t('rdc.rechercher', { n: total })} aria-label={t('rdc.rechercher', { n: total })} value={query} onChange={(e) => setQuery(e.target.value)} />
           )}
-          <div className="territory-options">
-            {options.map((name) => (
-              <label key={name} className="checkbox">
-                <input type="checkbox" checked={checked.includes(name)} onChange={(e) => toggle(name, e.target.checked)} disabled={ctx.readOnly} />
-                {name}
-              </label>
-            ))}
-            {options.length === 0 && <span className="muted small">{t('ui.aucunElement')}</span>}
-          </div>
+          {provinces.map((province) => {
+            const options = province.territories.filter(match)
+            return (
+              <div key={province.name} className="territory-group">
+                {provinces.length > 1 && (
+                  <p className="small territory-group-title">
+                    {province.name}
+                    {province.unit === 'commune' && <span className="muted"> — {t('rdc.communes')}</span>}
+                  </p>
+                )}
+                <div className="territory-options">
+                  {options.map((name) => (
+                    <label key={name} className="checkbox">
+                      <input type="checkbox" checked={checked.includes(name)} onChange={(e) => toggle(name, e.target.checked)} disabled={ctx.readOnly} />
+                      {name}
+                    </label>
+                  ))}
+                  {options.length === 0 && <span className="muted small">{t('ui.aucunElement')}</span>}
+                </div>
+              </div>
+            )
+          })}
         </>
       )}
-      {help && province && <small className="muted">{help}</small>}
+      {help && provinces.length > 0 && <small className="muted">{help}</small>}
     </fieldset>
   )
 }

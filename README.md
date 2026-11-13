@@ -80,3 +80,8 @@ Ne versionnez jamais `.env`, `data/`, `storage/` ni `backups/`.
 - HTTPS obligatoire, `NODE_ENV=production`, `CLIENT_URL` égal au nom de domaine.
 - Sauvegardes vers au moins deux emplacements distincts, et un test de restauration mensuel.
 - Avant l'extension nationale : passage à PostgreSQL ([guide](docs/MIGRATION_POSTGRESQL.md)).
+
+
+
+cd "/Users/cgiibnn/Desktop/JUSTIN/PROJECTS/urithi v1"
+./deploy/deploy.sh "Ce que j'ai modifié"

@@ -6,7 +6,7 @@ import { badRequest, forbidden, HttpError, notFound } from '../lib/errors.js';
 import { normalizeSearch, parseJson, uniqueSlug } from '../lib/text.js';
 import { isSuperAdmin } from './access.js';
 import { recordAudit } from './audit.js';
-import { findProvince, linkCommunityPlaces, territoriesInText } from './rdcDivisions.js';
+import { linkCommunityPlaces, provincesOf, territoriesInText } from './rdcDivisions.js';
 import { CONTENT_KINDS, dossierProgress, loadSectionDefs, sectionHasContent } from './dossierSchema.js';
 import { createItem, itemInclude, publicationProblems, publishInTransaction, updateItem } from './items.js';
 
@@ -96,22 +96,23 @@ function collectReferences(defs, data) {
   return refs;
 }
 
-// Territoires cochés : uniquement des territoires réels de la province
-// choisie. Les anciens textes libres (province ou territoire saisis avant les
-// listes) restent acceptés tels quels, pour ne perdre aucune réponse.
+// Territoires cochés : uniquement des territoires réels des provinces
+// choisies (une province, ou une liste de provinces). Les anciens textes
+// libres (province ou territoire saisis avant les listes) restent acceptés
+// tels quels, pour ne perdre aucune réponse.
 function checkAdminDivisions(defs, data) {
   for (const def of defs) {
     const values = data.sections[def.key]?.values;
     if (!values) continue;
     const provinceField = def.fields.find((f) => f.type === 'province');
     const territoriesField = def.fields.find((f) => f.type === 'territories');
-    const province = provinceField ? String(values[provinceField.key] ?? '').trim() : '';
+    const provinces = provinceField ? provincesOf(values[provinceField.key]) : [];
     const territories = territoriesField ? values[territoriesField.key] : null;
     if (!Array.isArray(territories) || !territories.some((name) => String(name).trim())) continue;
-    if (!findProvince(province)) throw badRequest('Choisissez la province avant ses territoires');
-    const allowed = new Set(findProvince(province)?.territories ?? []);
+    if (!provinces.length) throw badRequest('Choisissez la province avant ses territoires');
+    const allowed = new Set(provinces.flatMap((p) => p.territories));
     const wrong = territories.filter((name) => String(name).trim() && !allowed.has(name));
-    if (wrong.length) throw badRequest(`Territoire hors de la province choisie : « ${wrong.join(', ')} »`);
+    if (wrong.length) throw badRequest(`Territoire hors des provinces choisies : « ${wrong.join(', ')} »`);
   }
 }
 

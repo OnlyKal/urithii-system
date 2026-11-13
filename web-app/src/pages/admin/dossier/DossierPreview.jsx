@@ -17,7 +17,7 @@ function Value({ def, field, value, ctx, siblings = [] }) {
       </ul>
     )
   }
-  if (field.type === 'territories') return <span>{Array.isArray(value) ? value.filter((v) => String(v).trim()).join(', ') : value}</span>
+  if (field.type === 'territories' || field.type === 'province') return <span>{Array.isArray(value) ? value.filter((v) => String(v).trim()).join(', ') : value}</span>
   if (field.type === 'list') return <ul>{value.filter((v) => String(v).trim()).map((v, i) => <li key={i}>{v}</li>)}</ul>
   if (field.type === 'select') return <span>{optionLabel(def, value)}</span>
   if (field.type === 'person') return <span>{ctx.persons.find((p) => p.id === value)?.fullName ?? '—'}</span>

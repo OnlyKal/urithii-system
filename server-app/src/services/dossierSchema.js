@@ -30,7 +30,7 @@ export const DEFAULT_SECTIONS = [
       f('autresNoms', 'Autres noms, variantes et appellations historiques', 'list', { help: 'Un nom par ligne.' }),
       f('origineNom', 'Origine et signification du nom'),
       f('groupeLinguistique', 'Groupe linguistique ou famille culturelle', 'text'),
-      f('province', 'Province', 'province'),
+      f('province', 'Provinces', 'province', { help: 'Une ou plusieurs provinces : ajoutez chaque province où la communauté est présente.' }),
       f('territoire', 'Territoires', 'territories', { help: 'Cochez tous les territoires où la communauté est présente.' }),
       f('repartition', 'Répartition géographique et principales zones d’implantation'),
       f('voisins', 'Communautés voisines et relations historiques'),
@@ -508,7 +508,8 @@ export async function ensureSectionDefs(prisma) {
 // Province et territoires de l'étape d'identification : les étapes créées
 // avant ces listes avaient deux champs texte. Ils deviennent des listes, sans
 // toucher aux réponses déjà saisies (un ancien texte reste lisible).
-const ADMIN_FIELD_UPGRADES = { province: { type: 'province' }, territoire: { type: 'territories', label: 'Territoires', help: 'Cochez tous les territoires où la communauté est présente.' } };
+const PROVINCE_HELP = 'Une ou plusieurs provinces : ajoutez chaque province où la communauté est présente.';
+const ADMIN_FIELD_UPGRADES = { province: { type: 'province', label: 'Provinces', help: PROVINCE_HELP }, territoire: { type: 'territories', label: 'Territoires', help: 'Cochez tous les territoires où la communauté est présente.' } };
 // Champs retirés de l'identification : la liste des territoires les remplace.
 // Les réponses déjà saisies restent dans les dossiers, seul le champ disparaît
 // du formulaire.
@@ -520,6 +521,12 @@ async function upgradeAdminFields(prisma) {
   const fields = parseJson(def.fields, []);
   let changed = fields.some((field) => REMOVED_IDENTIFICATION_FIELDS.includes(field.key));
   const next = fields.filter((field) => !REMOVED_IDENTIFICATION_FIELDS.includes(field.key)).map((field) => {
+    // Plusieurs provinces possibles : l'ancien libellé « Province » devient
+    // « Provinces » (libellé seulement, les réponses ne changent pas).
+    if (field.key === 'province' && field.type === 'province' && field.label === 'Province') {
+      changed = true;
+      return { ...field, label: 'Provinces', help: field.help || PROVINCE_HELP };
+    }
     const upgrade = ADMIN_FIELD_UPGRADES[field.key];
     if (!upgrade || field.type !== 'text') return field;
     changed = true;

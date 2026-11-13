@@ -360,17 +360,23 @@ describe('dossiers de collecte', () => {
     assert.equal((await save({ province: 'Kinshasa', territoire: ['Gombe', 'Ngaliema'] })).status, 200);
     const saved = await ctx.collecteur.get(`/api/admin/dossiers/${dossier.id}`);
     assert.deepEqual(saved.body.dossier.data.sections.identification.values.territoire, ['Gombe', 'Ngaliema']);
+    // Plusieurs provinces : une liste, territoires de l'une ou l'autre.
+    assert.equal((await save({ province: ['Sud-Kivu', 'Nord-Kivu'], territoire: ['Kalehe', 'Beni'] })).status, 200);
+    const outside = await save({ province: ['Sud-Kivu', 'Nord-Kivu'], territoire: ['Kalehe', 'Gombe'] });
+    assert.equal(outside.status, 400);
+    assert.match(outside.body.error, /Gombe/);
 
     // À la publication, la communauté est rattachée à ses territoires : elle
     // apparaît sur la carte, dans sa province.
-    await save({ province: 'Sud-Kivu', territoire: ['Idjwi', 'Kalehe'], presentation: 'Présentation documentée.' });
+    // Une province sans territoire coché est rattachée elle-même.
+    await save({ province: ['Sud-Kivu', 'Maniema'], territoire: ['Idjwi', 'Kalehe'], presentation: 'Présentation documentée.' });
     await post(ctx.collecteur, `/api/admin/dossiers/${dossier.id}/transitions`, { toStatus: 'SUBMITTED' });
     await post(ctx.admin, `/api/admin/dossiers/${dossier.id}/transitions`, { toStatus: 'VALIDATED' });
     assert.equal((await post(ctx.admin, `/api/admin/dossiers/${dossier.id}/publish`, { updateCommunity: true })).status, 200);
     const places = (await request(app).get('/api/public/places')).body.places;
     assert.equal(places.filter((p) => p.type === 'PROVINCE').length, 26);
     const community = (await request(app).get(`/api/public/communities/${ctx.community.slug}`)).body.community;
-    assert.deepEqual(community.places.map((p) => `${p.name} (${p.parent})`).sort(), ['Idjwi (Sud-Kivu)', 'Kalehe (Sud-Kivu)']);
+    assert.deepEqual(community.places.map((p) => `${p.name} (${p.parent})`).sort(), ['Idjwi (Sud-Kivu)', 'Kalehe (Sud-Kivu)', 'Maniema (République démocratique du Congo)']);
   });
 
   test('étapes personnalisées : réservées à l’administrateur', async () => {
