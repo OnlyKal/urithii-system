@@ -607,12 +607,15 @@ router.get('/media/:id/file', async (req, res) => {
   });
   if (!media) throw notFound('Média introuvable');
   const download = req.query.download === '1' && media.publicationCleared;
-  const file =
-    media.kind === 'PHOTO' && !download
-      ? req.query.variant === 'thumbnail'
-        ? media.thumbnailFile ?? media.webFile ?? media.originalFile
-        : media.webFile ?? media.originalFile
-      : media.originalFile;
+  // Photos et vidéos : version de consultation si elle existe (WebP, H.264) ;
+  // le téléchargement donne toujours l'original.
+  const file = download
+    ? media.originalFile
+    : media.kind === 'PHOTO' && req.query.variant === 'thumbnail'
+      ? media.thumbnailFile ?? media.webFile ?? media.originalFile
+      : ['PHOTO', 'VIDEO'].includes(media.kind)
+        ? media.webFile ?? media.originalFile
+        : media.originalFile;
   res.setHeader('Content-Type', file.mimeType);
   if (download) res.attachment(file.originalName || media.title);
   else res.setHeader('Content-Disposition', 'inline');

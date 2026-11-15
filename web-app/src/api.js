@@ -53,9 +53,19 @@ export function translateServerMessage(message) {
 
 // Envoi multipart (téléversement de fichiers).
 export async function upload(path, formData) {
-  const res = await fetch(`/api${path}`, { method: 'POST', credentials: 'same-origin', body: formData })
+  let res
+  try {
+    res = await fetch(`/api${path}`, { method: 'POST', credentials: 'same-origin', body: formData })
+  } catch {
+    // Connexion coupée pendant l'envoi (réseau instable, fichier très lourd).
+    throw new ApiError(0, t('upload.connexionInterrompue'))
+  }
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new ApiError(res.status, data.error || t('common.unexpectedError'), data.details)
+  if (!res.ok) {
+    // Réponse sans message de l'API : refus du serveur web en amont.
+    const fallback = res.status === 413 ? t('upload.tropVolumineux') : [502, 503, 504].includes(res.status) ? t('upload.delaiDepasse') : t('common.unexpectedError')
+    throw new ApiError(res.status, data.error || fallback, data.details)
+  }
   return data
 }
 

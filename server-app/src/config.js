@@ -12,6 +12,8 @@ export const config = {
   autoBackupHours: Number(process.env.AUTO_BACKUP_HOURS ?? 24),
   maxUploadBytes: Number(process.env.MAX_UPLOAD_MB || 2048) * 1024 * 1024,
   clamscanPath: process.env.CLAMSCAN_PATH || null,
+  // Conversion des vidéos non lisibles partout (HEVC, MOV…) en H.264.
+  ffmpegPath: process.env.FFMPEG_PATH || 'ffmpeg',
   session: {
     cookieName: 'urithi_session',
     ttlMs: 12 * 60 * 60 * 1000,

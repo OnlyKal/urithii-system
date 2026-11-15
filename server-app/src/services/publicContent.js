@@ -30,7 +30,7 @@ export function serializePublicMedia(media) {
     downloadUrl: media.publicationCleared ? `/api/public/media/${media.id}/file?download=1` : null,
     url: publicMediaUrl(media, media.kind === 'PHOTO' ? 'web' : undefined),
     thumbnailUrl: media.kind === 'PHOTO' ? publicMediaUrl(media, 'thumbnail') : null,
-    mimeType: media.kind === 'PHOTO' && media.webFile ? media.webFile.mimeType : media.originalFile?.mimeType,
+    mimeType: ['PHOTO', 'VIDEO'].includes(media.kind) && media.webFile ? media.webFile.mimeType : media.originalFile?.mimeType,
     texts: (media.texts ?? [])
       .filter((t) => t.isPublic)
       .map((t) => ({

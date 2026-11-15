@@ -6,7 +6,7 @@ import { ErrorMessage } from '../ui.jsx'
 import { ACCESS_LABELS } from '../../labels.js'
 import { t } from '../../i18n/index.js'
 
-export const MEDIA_ACCEPT = '.jpg,.jpeg,.png,.webp,.tif,.tiff,.mp3,.wav,.m4a,.mp4,.pdf,.txt'
+export const MEDIA_ACCEPT = '.jpg,.jpeg,.png,.webp,.tif,.tiff,.mp3,.wav,.m4a,.mp4,.m4v,.mov,.pdf,.txt'
 
 const initialValues = (fields) =>
   Object.fromEntries(fields.map((f) => [f.name, f.default ?? (f.type === 'checkbox' ? false : '')]))

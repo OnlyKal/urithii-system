@@ -1,12 +1,14 @@
 import { execFile } from 'node:child_process';
 import { open, unlink } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import path from 'node:path';
 import { promisify } from 'node:util';
 import sharp from 'sharp';
 import { config } from '../config.js';
 import { prisma } from '../db.js';
 import { badRequest } from '../lib/errors.js';
 import { recordAudit } from './audit.js';
-import { resolveKey, storeOriginal } from './storage.js';
+import { resolveKey, storeOriginal, tempDir } from './storage.js';
 
 // Formats acceptés au téléversement (§51, §68). SVG et HTML sont exclus
 // (risque d'exécution de scripts). Le type déclaré par le navigateur n'est
@@ -27,7 +29,10 @@ const FORMATS = {
     test: (b) => ascii(b, 0, 3) === 'ID3' || (b[0] === 0xff && (b[1] & 0xe0) === 0xe0),
   },
   'audio/mp4': { kind: 'AUDIO', ext: ['m4a'], test: (b) => ascii(b, 4, 8) === 'ftyp' },
-  'video/mp4': { kind: 'VIDEO', ext: ['mp4'], test: (b) => ascii(b, 4, 8) === 'ftyp' },
+  'video/mp4': { kind: 'VIDEO', ext: ['mp4', 'm4v'], test: (b) => ascii(b, 4, 8) === 'ftyp' },
+  // Vidéos de téléphone (iPhone) : conservées telles quelles, converties en
+  // H.264 pour la consultation.
+  'video/quicktime': { kind: 'VIDEO', ext: ['mov'], test: (b) => ['ftyp', 'moov', 'wide', 'mdat', 'free'].includes(ascii(b, 4, 8)) },
   'application/pdf': { kind: 'DOCUMENT', ext: ['pdf'], test: (b) => ascii(b, 0, 5) === '%PDF-' },
   'text/plain': { kind: 'DOCUMENT', ext: ['txt'], test: (b) => !b.includes(0) },
 };
@@ -46,9 +51,19 @@ const TYPE_ALIASES = {
   'audio/mp3': 'audio/mpeg',
   'audio/x-m4a': 'audio/mp4',
   'audio/m4a': 'audio/mp4',
+  'video/x-m4v': 'video/mp4',
 };
 const canonicalType = (type) => TYPE_ALIASES[type] ?? type;
-export const isAcceptedType = (type) => Boolean(FORMATS[canonicalType(type)]);
+
+// Certains navigateurs n'annoncent aucun type (ou un type générique) : le type
+// se déduit alors de l'extension, puis la signature du fichier est vérifiée.
+const GENERIC_TYPES = new Set(['', 'application/octet-stream']);
+const typeFromExtension = (name) => {
+  const extension = name?.split('.').pop()?.toLowerCase();
+  return Object.entries(FORMATS).find(([, f]) => f.ext.includes(extension))?.[0] ?? null;
+};
+const resolveType = (declaredType, name) => (GENERIC_TYPES.has(declaredType ?? '') ? typeFromExtension(name) : canonicalType(declaredType));
+export const isAcceptedType = (type, name) => Boolean(FORMATS[resolveType(type, name)]);
 
 // Codecs vidéo d'un MP4, lus dans les descriptions d'échantillons (moov → trak
 // → mdia → minf → stbl → stsd), sans lire le reste du fichier.
@@ -103,14 +118,21 @@ async function mp4SampleEntries(filePath) {
   }
 }
 
-// Seule la vidéo H.264 est lue par tous les navigateurs.
-async function assertH264(filePath) {
+// Seule la vidéo H.264 est lue par tous les navigateurs. Une autre vidéo
+// (HEVC des téléphones récents, MPEG-4…) est acceptée si ffmpeg est
+// disponible : l'original est conservé tel quel et une version H.264 est
+// produite pour la consultation.
+async function isH264(filePath) {
   const entries = await mp4SampleEntries(filePath);
-  const isH264 = [...entries].some((e) => H264.has(e));
-  const other = [...entries].some((e) => OTHER_VIDEO.has(e));
-  if (!isH264 || other) {
-    throw badRequest('La vidéo doit être un MP4 encodé en H.264, lisible par tous les navigateurs. Convertissez-la avant l’envoi.');
-  }
+  return [...entries].some((e) => H264.has(e)) && ![...entries].some((e) => OTHER_VIDEO.has(e));
+}
+
+let ffmpegChecked = null;
+export function ffmpegAvailable() {
+  ffmpegChecked ??= promisify(execFile)(config.ffmpegPath, ['-version'])
+    .then(() => true)
+    .catch(() => false);
+  return ffmpegChecked;
 }
 
 function ascii(buffer, start, end) {
@@ -130,15 +152,52 @@ async function readHeader(filePath) {
 
 export async function identifyUpload(filePath, originalName, declaredType) {
   const extension = originalName.split('.').pop()?.toLowerCase();
-  const type = canonicalType(declaredType);
+  const type = resolveType(declaredType, originalName);
   const format = FORMATS[type];
   if (!format || !format.ext.includes(extension)) {
     throw badRequest('Format de fichier non accepté');
   }
   const header = await readHeader(filePath);
   if (!format.test(header)) throw badRequest('Le contenu du fichier ne correspond pas à son format déclaré');
-  if (type === 'video/mp4') await assertH264(filePath);
-  return { mimeType: type, kind: format.kind };
+  let needsConversion = false;
+  if (format.kind === 'VIDEO' && (type !== 'video/mp4' || !(await isH264(filePath)))) {
+    if (!(await ffmpegAvailable())) {
+      throw badRequest(
+        'La vidéo doit être un MP4 encodé en H.264. Les vidéos HEVC (réglage « Haute efficacité » des iPhone, de nombreux Android) ou MOV doivent être converties avant l’envoi.',
+      );
+    }
+    needsConversion = true;
+  }
+  return { mimeType: type, kind: format.kind, needsConversion };
+}
+
+// Version de consultation d'une vidéo : H.264 + AAC, démarrage rapide
+// (« faststart »), dimensions paires. L'original reste intact.
+export async function createVideoDerivative(mediaId) {
+  const media = await prisma.mediaAsset.findUnique({ where: { id: mediaId }, include: { originalFile: true } });
+  if (!media?.originalFile) return;
+  const original = media.originalFile;
+  const out = path.join(tempDir(), `${randomUUID()}.mp4`);
+  try {
+    await promisify(execFile)(
+      config.ffmpegPath,
+      ['-nostdin', '-loglevel', 'error', '-y', '-i', resolveKey(original.storageKey), '-map', '0:v:0', '-map', '0:a:0?', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-pix_fmt', 'yuv420p', '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', out],
+      { timeout: 2 * 60 * 60 * 1000, maxBuffer: 10 * 1024 * 1024 },
+    );
+    const webFile = await storeOriginal({
+      tempPath: out,
+      originalName: `${original.originalName.replace(/\.[^.]+$/, '')}-web.mp4`,
+      mimeType: 'video/mp4',
+      uploadedById: original.uploadedById,
+      derivedFromId: original.id,
+      transformation: 'Conversion H.264 / AAC pour la lecture dans tous les navigateurs (ffmpeg, CRF 23)',
+    });
+    await prisma.mediaAsset.update({ where: { id: mediaId }, data: { webFileId: webFile.id } });
+  } catch (err) {
+    console.error(`Conversion de la vidéo ${mediaId} impossible :`, err.message);
+  } finally {
+    await unlink(out).catch(() => {});
+  }
 }
 
 // Versions de consultation pour les images (§66) : l'original reste intact,
@@ -185,7 +244,7 @@ export async function scanForMalware(filePath) {
 
 export async function createMediaFromUpload({ file, metadata, user, ip }) {
   try {
-    const { mimeType, kind } = await identifyUpload(file.path, file.originalname, file.mimetype);
+    const { mimeType, kind, needsConversion } = await identifyUpload(file.path, file.originalname, file.mimetype);
     await scanForMalware(file.path);
     return await prisma.$transaction(
       async (tx) => {
@@ -220,7 +279,11 @@ export async function createMediaFromUpload({ file, metadata, user, ip }) {
         return media;
       },
       { timeout: 120_000 },
-    );
+    ).then((media) => {
+      // Conversion en arrière-plan : le téléversement n'attend pas.
+      if (needsConversion && !config.isTest) createVideoDerivative(media.id);
+      return media;
+    });
   } finally {
     await unlink(file.path).catch(() => {});
   }

@@ -104,7 +104,7 @@ const upload = multer({
   dest: tempDir(),
   limits: { fileSize: config.maxUploadBytes, files: 1, fields: 30 },
   fileFilter: (req, file, cb) =>
-    isAcceptedType(file.mimetype) ? cb(null, true) : cb(badRequest('Format de fichier non accepté')),
+    isAcceptedType(file.mimetype, file.originalname) ? cb(null, true) : cb(badRequest('Format de fichier non accepté')),
 });
 
 router.post('/', need(P.FILES_UPLOAD), upload.single('file'), async (req, res) => {

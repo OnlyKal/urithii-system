@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { after, beforeEach, describe, test } from 'node:test';
+import { execFile } from 'node:child_process';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { promisify } from 'node:util';
 import sharp from 'sharp';
+import { config } from '../src/config.js';
+import { createVideoDerivative, ffmpegAvailable } from '../src/services/media.js';
 import { app, loginAs, prisma, request, resetDatabase, setupTeam, validateItem, withOrigin } from './helpers.js';
 
 beforeEach(resetDatabase);
@@ -176,7 +183,7 @@ describe('médias', () => {
     assert.equal((await request(app).get(`/api/public/media/${mediaId}/file`)).status, 404);
   });
 
-  test('seuls les formats lisibles partout sont acceptés (vidéo MP4 en H.264)', async () => {
+  test('vidéos : H.264 accepté tel quel, HEVC et MOV acceptés pour conversion si ffmpeg est présent', async () => {
     const ctx = await context();
     const box = (type, ...children) => {
       const body = Buffer.concat(children);
@@ -197,11 +204,22 @@ describe('médias', () => {
     const h264 = await send(mp4('isom', 'avc1'), 'danse.mp4', 'video/mp4');
     assert.equal(h264.status, 201, JSON.stringify(h264.body));
     assert.equal(h264.body.media.kind, 'VIDEO');
+    const converter = await ffmpegAvailable();
     const hevc = await send(mp4('isom', 'hvc1'), 'iphone.mp4', 'video/mp4');
-    assert.equal(hevc.status, 400);
-    assert.match(hevc.body.error, /H\.264/);
-    // Formats retirés : MOV, WebM, MKV, OGG, FLAC.
-    assert.equal((await send(mp4('qt  ', 'avc1'), 'clip.mov', 'video/quicktime')).status, 400);
+    const mov = await send(mp4('qt  ', 'avc1'), 'clip.mov', 'video/quicktime');
+    if (converter) {
+      assert.equal(hevc.status, 201, JSON.stringify(hevc.body));
+      assert.equal(hevc.body.media.kind, 'VIDEO');
+      assert.equal(mov.status, 201, JSON.stringify(mov.body));
+    } else {
+      assert.equal(hevc.status, 400);
+      assert.match(hevc.body.error, /H\.264/);
+      assert.equal(mov.status, 400);
+    }
+    // Type non annoncé par le navigateur : déduit de l'extension, puis vérifié.
+    const anonymous = await send(mp4('isom', 'avc1'), 'sans-type.mp4', 'application/octet-stream');
+    assert.equal(anonymous.status, 201, JSON.stringify(anonymous.body));
+    // Formats retirés : WebM, MKV, OGG, FLAC.
     assert.equal((await send(Buffer.from('OggS\0\0\0\0'), 'chant.ogg', 'audio/ogg')).status, 400);
     assert.equal((await send(Buffer.from('fLaC\0\0\0\0'), 'chant.flac', 'audio/flac')).status, 400);
     // Un M4A envoyé depuis un Mac (audio/x-m4a) est accepté et enregistré en audio/mp4.
@@ -210,6 +228,27 @@ describe('médias', () => {
     assert.equal(m4a.body.media.kind, 'AUDIO');
     const stored = await prisma.mediaAsset.findUnique({ where: { id: m4a.body.media.id }, include: { originalFile: true } });
     assert.equal(stored.originalFile.mimeType, 'audio/mp4');
+  });
+
+  test('conversion réelle d’une vidéo non H.264 en version de consultation H.264', async (t) => {
+    if (!(await ffmpegAvailable())) return t.skip('ffmpeg absent');
+    const ctx = await context();
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'urithi-video-'));
+    const source = path.join(dir, 'mpeg4.mp4');
+    await promisify(execFile)(config.ffmpegPath, ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc=size=320x180:rate=25', '-t', '1', '-c:v', 'mpeg4', source]);
+    const res = await upload(ctx.agents.editeur, await readFile(source), { filename: 'ancienne.mp4', contentType: 'video/mp4', fields: { title: 'Vidéo', accessLevel: 'PUBLIC' } });
+    assert.equal(res.status, 201, JSON.stringify(res.body));
+    await createVideoDerivative(res.body.media.id);
+    const media = await prisma.mediaAsset.findUnique({ where: { id: res.body.media.id }, include: { webFile: true, originalFile: true } });
+    assert.ok(media.webFile, 'version de consultation créée');
+    assert.equal(media.webFile.mimeType, 'video/mp4');
+    assert.equal(media.webFile.derivedFromId, media.originalFile.id);
+    // La version de consultation est servie ; l'original reste intact.
+    const served = await ctx.agents.editeur.get(`/api/admin/media/${media.id}/file?variant=web`);
+    assert.equal(served.status, 200);
+    assert.equal(served.headers['content-length'], String(media.webFile.sizeBytes));
+    assert.notEqual(media.webFile.sha256, media.originalFile.sha256);
+    await rm(dir, { recursive: true, force: true });
   });
 
   test('médiathèque publique : consultation, contexte, filtres et téléchargement', async () => {

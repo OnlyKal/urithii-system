@@ -765,7 +765,7 @@ export default {
   "media.integrite2": "Intégrité",
   "media.integrityOk.one": "Contrôle d’intégrité : OK ({n} fichier)",
   "media.integrityOk.other": "Contrôle d’intégrité : OK ({n} fichiers)",
-  "media.leFichierEstConserveTel": "Le fichier est conservé tel quel, avec son empreinte. Pour les photos, une version web et une miniature sont générées sans toucher à l’original. Formats : JPEG, PNG, WebP, TIFF, MP3, WAV, M4A, MP4 (vidéo H.264), PDF, TXT.",
+  "media.leFichierEstConserveTel": "Le fichier est conservé tel quel, avec son empreinte. Pour les photos, une version web et une miniature sont générées sans toucher à l’original ; les vidéos qui ne sont pas en H.264 (HEVC des téléphones, MOV) reçoivent une version lisible dans tous les navigateurs.",
   "media.lesDroitsDeDiffusionPublique": "Les droits de diffusion publique sont confirmés par le détenteur",
   "media.mediatheque": "Médiathèque",
   "media.mediatheque2": "← Médiathèque",
@@ -1469,7 +1469,7 @@ export default {
   "dossier.tab.fiches": "Fiches publiées",
   "dossier.tab.formulaire": "Formulaire",
   "dossier.tab.historique": "Historique et commentaires",
-  "dossier.tailleMaximale": "Formats : JPEG, PNG, WebP, TIFF, MP3, WAV, M4A, MP4 (vidéo H.264), PDF, TXT. Taille maximale : 2 Go par fichier (réglage par défaut).",
+  "dossier.tailleMaximale": "Formats : JPEG, PNG, WebP, TIFF, MP3, WAV, M4A, MP4, MOV, PDF, TXT. Taille maximale : 2 Go par fichier (réglage par défaut).",
   "dossier.titreDuDossier": "Titre du dossier",
   "dossier.tousLesCollecteurs": "Tous les collecteurs",
   "dossier.toutLeDossier": "Tout le dossier",
@@ -2168,5 +2168,8 @@ export default {
   "jeux.pf.tout": "Tout",
   "jeux.pf.traceInconnue": "une borne d’observation",
   "jeux.pf.traceObservee": "Nouvelle espèce observée !",
-  "jeux.pf.typeDefi": "Type de défi"
+  "jeux.pf.typeDefi": "Type de défi",
+  "upload.connexionInterrompue": "L’envoi a été interrompu (connexion coupée). Vérifiez votre connexion et réessayez ; pour un fichier très lourd, préférez une connexion stable.",
+  "upload.tropVolumineux": "Le fichier dépasse la taille acceptée par le serveur.",
+  "upload.delaiDepasse": "Le serveur n’a pas répondu à temps. Réessayez ; si le fichier est très lourd, réessayez avec une meilleure connexion."
 }
