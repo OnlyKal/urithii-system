@@ -1,4 +1,5 @@
-import { Award, BookOpenCheck, Compass, Crown, Footprints, HandHeart, Landmark, Leaf, PawPrint, Sparkles, Target, Timer, TreePine, Trophy } from 'lucide-react'
+import { Award, BookOpenCheck, Compass, Crown, Footprints, HandHeart, Landmark, Leaf, Library, Mountain, PawPrint, Sparkles, Target, Timer, TreePine, Trophy, Users } from 'lucide-react'
+import { POINTS } from '../../data/atlasContent.js'
 
 // Badges (gagnés en terminant une mission) et trophées (exploits calculés à
 // partir de la progression).
@@ -21,8 +22,14 @@ export const TROPHIES = [
   { id: 'randonneur', name: 'Randonneur', icon: Footprints, hint: 'Parcourir 1 km à pied.', test: (s) => s.stats.distance >= 1000 },
   { id: 'defi-eclair', name: 'Éclair', icon: Timer, hint: 'Obtenir 8 bonnes réponses au défi éclair.', test: (s) => s.stats.challengeBest >= 8 },
   { id: 'erudit', name: 'Érudit', icon: BookOpenCheck, hint: 'Consulter cinq espaces culturels du village.', test: (s) => Object.keys(s.consulted).length >= 5 },
+  { id: 'cartographe', name: 'Cartographe', icon: Mountain, hint: 'Découvrir tous les paysages de l’atlas depuis la longue-vue.', test: (s) => LANDSCAPES.every((id) => s.discoveries[id]) },
+  { id: 'atlas-complet', name: 'Atlas complet', icon: TreePine, hint: 'Découvrir toutes les fiches de l’atlas vivant.', test: (s) => POINTS.every((p) => s.discoveries[p.id]) },
+  { id: 'lecteur', name: 'Lecteur assidu', icon: Library, hint: 'Lire dix fiches culturelles dans le jeu.', test: (s) => Object.keys(s.reads ?? {}).length >= 10 },
+  { id: 'ami-des-communautes', name: 'Ami des communautés', icon: Users, hint: 'Rencontrer trois communautés à l’arbre à palabres.', test: (s) => Object.keys(s.communities ?? {}).length >= 3 },
   { id: 'gardien-accompli', name: 'Gardien accompli', icon: Crown, hint: 'Obtenir quatre badges.', test: (s) => Object.keys(s.badges).length >= 4 },
 ]
+
+const LANDSCAPES = POINTS.filter((p) => ['eaux', 'reliefs', 'barrages'].includes(p.category)).map((p) => p.id)
 
 export const earnedTrophies = (state) => TROPHIES.filter((t) => t.test(state)).map((t) => t.id)
 
@@ -42,6 +49,6 @@ export function levelFor(xp) {
 const TITLES = ['Apprenti gardien', 'Éclaireur', 'Pisteur', 'Gardien', 'Gardien confirmé', 'Grand gardien']
 
 // Points d'expérience attribués par action.
-export const XP = { zone: 10, identify: 25, discover: 40, talk: 15, consult: 20, quizCorrect: 15 }
+export const XP = { zone: 10, identify: 25, discover: 40, talk: 15, consult: 20, read: 15, community: 20, quizCorrect: 15 }
 
 export { Trophy }

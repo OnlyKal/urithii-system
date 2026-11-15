@@ -1,4 +1,4 @@
-import { Award, Backpack, BookOpen, Check, Gauge, Home, Keyboard, Leaf, Lock, Map as MapIcon, Music, PawPrint, Play, ScrollText, Volume2 } from 'lucide-react'
+import { Award, Backpack, BookOpen, BookOpenText, Check, Gauge, Home, Keyboard, Leaf, Lock, Map as MapIcon, Mountain, Music, PawPrint, Play, ScrollText, Users, Volume2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { contentName } from '../core/content.js'
@@ -58,12 +58,16 @@ export function Journal({ missions, progress, error, onStart, onClose }) {
   )
 }
 
-export function Inventory({ progress, onOpenCard, onClose }) {
+export function Inventory({ progress, onOpenCard, onOpenItem, onOpenCommunity, onClose }) {
   const groups = [
     ['plante', g('plantesIdentifiees'), Leaf],
     ['animal', g('animauxObserves'), PawPrint],
+    ['paysage', g('pf.paysagesDecouverts'), Mountain],
     ['savoir', g('savoirsConsultes'), ScrollText],
+    ['fiche', g('pf.fichesLues'), BookOpenText],
+    ['communaute', g('pf.communautesRencontrees'), Users],
   ]
+  const openers = { plante: onOpenCard, animal: onOpenCard, paysage: onOpenCard, fiche: onOpenItem, communaute: onOpenCommunity }
   return (
     <GameWindow title={g('carnet')} eyebrow={g('inventaire')} icon={Backpack} onClose={onClose} wide>
       <div className="inventory-grid">
@@ -78,11 +82,11 @@ export function Inventory({ progress, onOpenCard, onClose }) {
               <ul>
                 {items.map((i) => (
                   <li key={i.id}>
-                    {kind === 'savoir' ? (
+                    {!openers[kind] ? (
                       <span className="inventory-item">{i.name}</span>
                     ) : (
-                      <button type="button" className="inventory-item" onClick={() => onOpenCard(i.id)}>
-                        {contentName(i.id)}
+                      <button type="button" className="inventory-item" onClick={() => openers[kind](i.id)}>
+                        {['fiche', 'communaute'].includes(kind) ? i.name : contentName(i.id)}
                       </button>
                     )}
                   </li>

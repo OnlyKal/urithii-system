@@ -339,6 +339,49 @@
 .culture-summary { font-size: 0.85rem; color: #dbe6df; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .culture-text .game-tag { justify-self: start; }
 .culture-open { flex: none; color: var(--game-muted); margin-top: 0.2rem; }
+button.culture-item { width: 100%; text-align: left; font: inherit; cursor: pointer; }
+.culture-item.is-read { border-color: rgba(41, 203, 148, 0.35); }
+.culture-item.is-read strong::after { content: ' ✓'; color: var(--game-mint); }
+
+/* Plateforme dans le jeu : fiches, thèmes, communautés, médias, atlas */
+.game-back-button { margin-left: 0; margin-right: 0.2rem; flex: none; }
+.pf-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0 0.8rem; }
+.pf-tabs button { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.75rem; border-radius: 999px; border: 1px solid var(--game-line); background: rgba(255, 255, 255, 0.05); color: var(--game-text); font: inherit; font-size: 0.82rem; cursor: pointer; }
+.pf-tabs button small { color: var(--game-muted); }
+.pf-tabs button.is-active { background: var(--game-mint); border-color: var(--game-mint); color: var(--game-ink); }
+.pf-tabs button.is-active small { color: var(--game-ink); }
+.pf-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0.6rem 0; }
+.pf-chips > small { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--game-muted); margin-right: 0.2rem; }
+.pf-chip { border: 1px solid var(--game-line); cursor: pointer; font: inherit; font-size: 0.78rem; }
+.pf-chip:hover { background: rgba(41, 203, 148, 0.18); }
+.pf-grid { list-style: none; margin: 0.6rem 0 0; padding: 0; display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.pf-grid.is-small { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.pf-tile { width: 100%; height: 100%; display: grid; gap: 0.35rem; align-content: start; text-align: left; padding: 0.75rem; border-radius: 12px; border: 1px solid var(--game-line); background: rgba(255, 255, 255, 0.04); color: #fff; font: inherit; cursor: pointer; }
+.pf-tile:hover:not(:disabled) { border-color: rgba(41, 203, 148, 0.5); background: rgba(41, 203, 148, 0.08); }
+.pf-tile:disabled { cursor: default; opacity: 0.6; }
+.pf-tile small { color: var(--game-muted); font-size: 0.78rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.pf-tile .game-tag { justify-self: start; }
+.pf-tile.is-read { border-color: rgba(41, 203, 148, 0.4); }
+.pf-atlas img, .pf-atlas .culture-thumb { width: 100%; height: 92px; object-fit: cover; border-radius: 8px; }
+.pf-item-body { display: grid; gap: 0.7rem; }
+.pf-item-body .prose { font-size: 0.9rem; line-height: 1.6; color: #e3ece6; }
+.pf-item-body h3 { margin: 0.4rem 0 0; font-size: 0.95rem; }
+.pf-photos { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.pf-photos figure { margin: 0; }
+.pf-photos img { width: 100%; height: 110px; object-fit: cover; border-radius: 8px; display: block; }
+.pf-photos figcaption { font-size: 0.7rem; color: var(--game-muted); margin-top: 0.2rem; }
+.pf-player { display: grid; gap: 0.35rem; padding: 0.6rem; border-radius: 12px; background: rgba(255, 255, 255, 0.05); color: var(--game-text); }
+.pf-player small { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--game-muted); }
+.pf-player video { width: 100%; max-height: 320px; }
+.pf-fields dd .prose p { margin: 0 0 0.4rem; }
+.pf-sources ul { margin: 0.3rem 0 0; padding-left: 1.1rem; font-size: 0.82rem; color: var(--game-muted); }
+.pf-sources .game-link { margin-top: 0.2rem; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+.pf-media { list-style: none; margin: 0.4rem 0 0; padding: 0; display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.pf-media li { display: grid; gap: 0.4rem; align-content: start; padding: 0.7rem; border-radius: 12px; border: 1px solid var(--game-line); background: rgba(255, 255, 255, 0.04); color: var(--game-text); }
+.pf-media img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+.pf-media small { color: var(--game-muted); font-size: 0.74rem; }
+.pf-media .game-link { margin-top: 0; background: none; border: 0; padding: 0; font: inherit; font-size: 0.82rem; cursor: pointer; text-align: left; }
+
 
 /* Dialogue */
 .game-dialogue {

@@ -8,7 +8,7 @@ const router = Router();
 router.get('/', async (req, res) => {
   const [categories, communities, places, languages, users, questionnaires] = await Promise.all([
     prisma.category.findMany({ orderBy: [{ position: 'asc' }, { name: 'asc' }] }),
-    prisma.community.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
+    prisma.community.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true, slug: true } }),
     prisma.place.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true, type: true, parentId: true } }),
     prisma.language.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true, isoCode: true } }),
     prisma.user.findMany({

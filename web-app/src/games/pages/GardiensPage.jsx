@@ -5,14 +5,17 @@ import { Ambience } from '../audio/ambience.js'
 import { contentName } from '../core/content.js'
 import { fetchMissions } from '../core/gameApi.js'
 import { currentStep, pendingTargets } from '../core/missions.js'
-import { completeQuiz, onNotice, record, savePlayer, startMission, startSession, updateProfile, updateSettings, useProgress } from '../core/progress.js'
+import { loadPlatform, rootCategory } from '../core/platform.js'
+import { completeQuiz, onNotice, record, recordFreeQuiz, savePlayer, startMission, startSession, updateProfile, updateSettings, useProgress } from '../core/progress.js'
+import { atlasQuestions, mixedQuestions } from '../core/quizGen.js'
 import { AVATARS } from '../hd/assets.js'
 import { createInput } from '../engine/input.js'
 import { QUALITY, resolveQuality } from '../engine/quality.js'
 import { createRuntime } from '../engine/runtime.js'
 import { STAGES } from '../engine/stages.js'
 import { g } from '../i18n.js'
-import { CultureCard, Dialogue, IdentifyChoice, NatureCard, Quiz, RewardScreen } from '../ui/Dialogs.jsx'
+import { Dialogue, IdentifyChoice, NatureCard, Quiz, RewardScreen } from '../ui/Dialogs.jsx'
+import { CommunitiesWindow, CommunityWindow, CultureCard, ItemCard, ItemsWindow, MediathequeWindow, PanoramaWindow, SavoirsWindow } from '../ui/Platform.jsx'
 import { HudButtons, InteractPrompt, Minimap, MissionTracker, Notices, PlayerBadge, ZoneBanner } from '../ui/Hud.jsx'
 import { LoadingScreen } from '../ui/LoadingScreen.jsx'
 import { Controls, Inventory, Journal, MapPanel, PauseMenu } from '../ui/Panels.jsx'
@@ -67,6 +70,11 @@ export default function GardiensPage() {
     return () => delete window.__urithiGame
   }, [runtime])
   useEffect(() => input.attach(), [input])
+
+  // Registre de la plateforme (référentiel, communautés, langues, lieux).
+  useEffect(() => {
+    loadPlatform().catch(() => {})
+  }, [])
 
   // Missions publiées ; la première mission non terminée démarre d'elle-même.
   useEffect(() => {
@@ -150,9 +158,23 @@ export default function GardiensPage() {
         // Récit déjà entendu : on passe directement aux questions.
         if (quiz && progressNow.talks[it.id]) setPanel({ type: 'quiz', ...quiz, npc: it.npc })
         else setPanel({ type: 'dialogue', npc: it.npc })
+      } else if (it.kind === 'trace') {
+        // Borne d'observation d'une fiche de l'atlas sans modèle 3D.
+        if (it.traceKind === 'plant') {
+          if (progressNow.discoveries[it.id]) setPanel({ type: 'card', id: it.id })
+          else setPanel({ type: 'identify', id: it.id })
+        } else {
+          const first = record({ type: 'discover', id: it.id, name: contentName(it.id) }, list)
+          if (first) ambience.current?.chime('discover')
+          setPanel({ type: 'card', id: it.id, status: first ? g('pf.traceObservee') : null })
+        }
+      } else if (it.kind === 'panorama') {
+        ambience.current?.chime('open')
+        setPanel({ type: 'panorama' })
       } else if (it.kind === 'station') {
-        if (record({ type: 'consult', id: it.id, name: it.station.theme }, list)) ambience.current?.chime('open')
-        setPanel({ type: 'culture', station: it.station })
+        if (record({ type: 'consult', id: it.id, name: it.station.name }, list)) ambience.current?.chime('open')
+        const hub = { savoirs: 'savoirs', communautes: 'communities', mediatheque: 'mediatheque' }[it.station.kind]
+        setPanel(hub ? { type: hub } : { type: 'culture', station: it.station })
       }
     },
     [runtime],
@@ -161,6 +183,35 @@ export default function GardiensPage() {
   useEffect(() => {
     latest.current = { missions, progress, interact }
   })
+
+  // Navigation entre fenêtres : chaque fenêtre ouverte depuis une autre
+  // garde un bouton de retour.
+  const open = useCallback((next) => setPanel((current) => ({ ...next, back: current })), [])
+  const back = panel?.back ? () => setPanel(panel.back) : undefined
+  const openItem = useCallback((slug) => open({ type: 'item', slug }), [open])
+  const openItems = useCallback((title, eyebrow, params) => open({ type: 'items', title, eyebrow, params }), [open])
+  const onReadItem = useCallback(
+    (item) =>
+      record(
+        {
+          type: 'read',
+          id: item.slug,
+          name: item.title,
+          data: { category: item.category?.slug ?? null, root: item.category ? rootCategory(item.category.slug) : null, communities: item.communities.map((c) => c.slug).filter(Boolean) },
+        },
+        latest.current.missions,
+      ) && ambience.current?.chime('open'),
+    [],
+  )
+  // Questions tirées des fiches, proposées par les personnages hors mission.
+  const freeQuiz = useCallback(
+    async (npc) => {
+      const questions = npc.id === 'ecogarde' ? atlasQuestions(5, { categories: ['faune', 'flore'] }) : await mixedQuestions(5, { culture: 0.8 })
+      if (!questions.length) return
+      setPanel({ type: 'freequiz', npc, step: { id: 'libre', label: g('pf.quizLibre', { name: npc.name }), questions } })
+    },
+    [],
+  )
 
   // Rappels du moteur vers l'interface.
   useEffect(() => {
@@ -327,10 +378,12 @@ export default function GardiensPage() {
           onClose={close}
         />
       )}
-      {panel?.type === 'inventory' && <Inventory progress={progress} onOpenCard={(id) => setPanel({ type: 'card', id })} onClose={close} />}
+      {panel?.type === 'inventory' && (
+        <Inventory progress={progress} onOpenCard={(id) => open({ type: 'card', id })} onOpenItem={openItem} onOpenCommunity={(slug) => open({ type: 'community', slug })} onClose={close} />
+      )}
       {panel?.type === 'map' && <MapPanel runtime={runtime} targets={targets} discovered={discovered} onClose={close} />}
       {panel?.type === 'pause' && <PauseMenu settings={progress.settings} quality={quality} onSettings={updateSettings} onResume={close} onClose={close} />}
-      {panel?.type === 'card' && <NatureCard id={panel.id} status={panel.status} onClose={close} />}
+      {panel?.type === 'card' && <NatureCard id={panel.id} status={panel.status} onBack={back} onClose={close} />}
       {panel?.type === 'identify' && (
         <IdentifyChoice
           id={panel.id}
@@ -342,13 +395,69 @@ export default function GardiensPage() {
           }}
         />
       )}
-      {panel?.type === 'culture' && <CultureCard station={panel.station} onClose={close} />}
+      {panel?.type === 'culture' && (
+        <CultureCard
+          station={panel.station}
+          read={progress.reads}
+          onOpenItem={openItem}
+          onOpenLanguage={(l) => openItems(l.name, g('pf.langue'), { languageId: l.id })}
+          onBack={back}
+          onClose={close}
+        />
+      )}
+      {panel?.type === 'items' && <ItemsWindow title={panel.title} eyebrow={panel.eyebrow} params={panel.params} read={progress.reads} onOpenItem={openItem} onBack={back} onClose={close} />}
+      {panel?.type === 'item' && <ItemCard slug={panel.slug} onRead={onReadItem} onOpenItem={openItem} onBack={back} onClose={close} />}
+      {panel?.type === 'savoirs' && (
+        <SavoirsWindow onOpenTheme={(c) => open({ type: 'culture', station: { id: `theme-${c.slug}`, name: c.name, theme: c.name, category: c.slug } })} onClose={close} />
+      )}
+      {panel?.type === 'communities' && (
+        <CommunitiesWindow
+          met={progress.communities}
+          onOpenCommunity={(slug) => open({ type: 'community', slug })}
+          onOpenPlace={(p) => openItems(p.name, g('pf.province'), { placeId: p.id })}
+          onOpenLanguage={(l) => openItems(l.name, g('pf.langue'), { languageId: l.id })}
+          onClose={close}
+        />
+      )}
+      {panel?.type === 'community' && (
+        <CommunityWindow
+          slug={panel.slug}
+          onMeet={(c) => record({ type: 'community', id: panel.slug, name: c.name }, latest.current.missions) && ambience.current?.chime('discover')}
+          onOpenItem={openItem}
+          onBack={back}
+          onClose={close}
+        />
+      )}
+      {panel?.type === 'mediatheque' && <MediathequeWindow onOpenItem={openItem} onClose={close} />}
+      {panel?.type === 'panorama' && (
+        <PanoramaWindow
+          discoveries={progress.discoveries}
+          onOpenCard={(id) => open({ type: 'card', id })}
+          onOpenLandscape={(p) => {
+            if (record({ type: 'discover', id: p.id, name: p.name, kind: 'paysage' }, latest.current.missions)) ambience.current?.chime('discover')
+            open({ type: 'card', id: p.id, status: g('pf.paysageDecouvert') })
+          }}
+          onClose={close}
+        />
+      )}
+      {panel?.type === 'freequiz' && (
+        <Quiz
+          step={panel.step}
+          sound={(kind) => ambience.current?.chime(kind)}
+          onClose={close}
+          onDone={(correct, total) => {
+            recordFreeQuiz(correct, total)
+            close()
+          }}
+        />
+      )}
       {panel?.type === 'dialogue' && (
         <Dialogue
           npc={panel.npc}
           quiz={quizFor(panel.npc.id)}
           onRead={() => record({ type: 'talk', id: panel.npc.id, name: panel.npc.name }, latest.current.missions)}
           onQuiz={() => setPanel({ type: 'quiz', ...quizFor(panel.npc.id), npc: panel.npc })}
+          onFreeQuiz={() => freeQuiz(panel.npc)}
           onClose={close}
         />
       )}

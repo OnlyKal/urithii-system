@@ -1,9 +1,9 @@
-import { api } from '../../api.js'
 import { atlasPhoto, CATEGORIES, IUCN, POINTS } from '../../data/atlasContent.js'
 
 // Contenus affichés par le jeu, tous issus d'URITHI :
 // - faune et flore : fiches de l'atlas vivant (texte, photographie, crédit) ;
-// - culture : fiches culturelles publiées, lues par l'API publique.
+// - culture : fiches culturelles publiées, lues par l'API publique
+//   (voir platform.js).
 // Le jeu ne rédige aucune documentation propre.
 
 const BY_ID = new Map(POINTS.map((p) => [p.id, p]))
@@ -37,24 +37,6 @@ export const contentName = (id) => BY_ID.get(id)?.name ?? id
 export function contentParagraph(id, index) {
   const p = BY_ID.get(id)
   return p?.text?.[index] ? { text: p.text[index], source: { id, name: p.name, link: `/atlas?lieu=${id}` } } : null
-}
-
-// Fiches culturelles publiées d'une catégorie (mise en cache pour la partie).
-const cache = new Map()
-export function culturalItems(category, limit = 6) {
-  const key = `${category}:${limit}`
-  if (!cache.has(key)) {
-    cache.set(
-      key,
-      api(`/public/items?category=${encodeURIComponent(category)}&pageSize=${limit}`)
-        .then((r) => ({ total: r.total, items: r.items }))
-        .catch((error) => {
-          cache.delete(key)
-          throw error
-        }),
-    )
-  }
-  return cache.get(key)
 }
 
 // Source d'une question de quiz : fiche de l'atlas, sinon fiche culturelle.

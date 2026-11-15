@@ -6,7 +6,6 @@ import { useDialog } from '../../components/Modal.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { ErrorMessage, Loading, MultiSelect, TableWrap, useApi } from '../../components/ui.jsx'
 import { POINTS } from '../../data/atlasContent.js'
-import { contentName } from '../core/content.js'
 import { MODES } from '../core/missions.js'
 import { BADGES } from '../core/rewards.js'
 import { g } from '../i18n.js'
@@ -17,7 +16,7 @@ import '../games.css'
 // étapes, récompenses, contenus associés, publication, statistiques.
 
 const STATUS = { DRAFT: g('admin.brouillon'), PUBLISHED: g('admin.publiee'), DISABLED: g('admin.desactivee') }
-const STEP_TYPES = ['explore', 'identify', 'discover', 'talk', 'consult', 'quiz']
+const STEP_TYPES = ['explore', 'identify', 'discover', 'talk', 'consult', 'read', 'community', 'quiz']
 const modeName = (id) => MODES.find((m) => m.id === id)?.name ?? id
 const slugify = (s) =>
   s
@@ -121,10 +120,16 @@ const newMission = {
   steps: [emptyStep()],
 }
 
-function targetLabel(type, target) {
-  if (type === 'identify' || type === 'discover') return contentName(target.id)
-  return target.label
+// Référentiel et communautés (listes de l'administration) pour les cibles
+// qui suivent la plateforme.
+function platformLookups(lookups) {
+  const roots = (lookups.categories ?? []).filter((c) => !c.parentId && c.isActive !== false)
+  return { roots, communities: (lookups.communities ?? []).filter((c) => c.slug) }
 }
+
+// Une cible « groupe » (toute fiche d'un thème, tout animal de l'atlas…)
+// peut compter plusieurs fois.
+const GROUP_MAX = 30
 
 function QuestionEditor({ question, onChange, onRemove, index }) {
   const set = (patch) => onChange({ ...question, ...patch })
@@ -170,9 +175,11 @@ function QuestionEditor({ question, onChange, onRemove, index }) {
   )
 }
 
-function StepEditor({ step, environment, onChange, onRemove, onMove, index, total }) {
+function StepEditor({ step, environment, platform, onChange, onRemove, onMove, index, total }) {
   const set = (patch) => onChange({ ...step, ...patch })
-  const options = stepTargets(environment, step.type)
+  const options = stepTargets(environment, step.type, platform)
+  const grouped = step.targets.some((id) => options.find((o) => o.id === id)?.group)
+  const maxCount = grouped ? GROUP_MAX : Math.max(1, step.targets.length)
   return (
     <fieldset className="game-admin-step">
       <legend>
@@ -202,14 +209,15 @@ function StepEditor({ step, environment, onChange, onRemove, onMove, index, tota
       </div>
       <MultiSelect
         label={step.type === 'quiz' ? g('admin.personnageQuiz') : g('admin.cibles')}
-        options={options.map((o) => ({ value: o.id, label: targetLabel(step.type, o) }))}
+        options={options.map((o) => ({ value: o.id, label: o.label }))}
         value={step.targets}
-        onChange={(targets) => set({ targets, count: Math.min(step.count, Math.max(1, targets.length)) })}
+        onChange={(targets) => set({ targets, count: targets.some((id) => options.find((o) => o.id === id)?.group) ? step.count : Math.min(step.count, Math.max(1, targets.length)) })}
       />
+      {['read', 'community'].includes(step.type) && <p className="muted small">{g('admin.ciblesPlateforme')}</p>}
       {step.type !== 'quiz' && (
         <label className="game-admin-count">
           {g('admin.nombreRequis')}
-          <input type="number" min={1} max={Math.max(1, step.targets.length)} value={step.count} onChange={(e) => set({ count: Number(e.target.value) })} />
+          <input type="number" min={1} max={maxCount} value={step.count} onChange={(e) => set({ count: Number(e.target.value) })} />
         </label>
       )}
       {step.type === 'quiz' && (
@@ -366,6 +374,7 @@ function MissionForm({ initial, lookups, onSubmit, onDelete }) {
           total={form.steps.length}
           step={step}
           environment={form.environment}
+          platform={platformLookups(lookups)}
           onChange={(next) => setSteps(form.steps.map((s, j) => (j === i ? next : s)))}
           onRemove={() => setSteps(form.steps.filter((_, j) => j !== i))}
           onMove={(delta) => {

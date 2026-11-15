@@ -20,6 +20,10 @@ const fresh = () => ({
   discoveries: {},
   talks: {},
   consulted: {},
+  // Fiches culturelles lues dans le jeu : slug → { at, category, root, communities }.
+  reads: {},
+  // Communautés rencontrées à l'arbre à palabres : slug → date.
+  communities: {},
   inventory: [],
   badges: {},
   trophies: {},
@@ -108,19 +112,25 @@ const addLog = (s, entry) => ({ ...s, log: [{ ...entry, at: new Date().toISOStri
 
 // Enregistre une action du joueur, attribue l'expérience, puis vérifie les
 // missions et les trophées.
-//   { type: 'zone'|'identify'|'discover'|'talk'|'consult', id, name, kind }
+//   { type: 'zone'|'identify'|'discover'|'talk'|'consult'|'read'|'community', id, name, kind, data }
+//   kind (découvertes) : 'plante', 'animal' ou 'paysage' ; data (lecture) :
+//   catégorie, catégorie racine et communautés de la fiche.
+const BUCKETS = { zone: 'zones', identify: 'discoveries', discover: 'discoveries', talk: 'talks', consult: 'consulted', read: 'reads', community: 'communities' }
+const INVENTORY_KIND = { consult: 'savoir', read: 'fiche', community: 'communaute' }
+
 export function record(event, missions = []) {
-  const bucket = { zone: 'zones', identify: 'discoveries', discover: 'discoveries', talk: 'talks', consult: 'consulted' }[event.type]
-  if (!bucket || state[bucket][event.id]) return false
-  let next = { ...state, [bucket]: { ...state[bucket], [event.id]: new Date().toISOString() } }
+  const bucket = BUCKETS[event.type]
+  if (!bucket || state[bucket]?.[event.id]) return false
+  const at = new Date().toISOString()
+  let next = { ...state, [bucket]: { ...state[bucket], [event.id]: event.type === 'read' ? { at, ...event.data } : at } }
   const gained = XP[event.type] ?? 0
   next.xp += gained
   if (event.type === 'identify' || event.type === 'discover') {
-    next.inventory = [...next.inventory, { id: event.id, kind: event.type === 'identify' ? 'plante' : 'animal', name: event.name, at: new Date().toISOString() }]
+    next.inventory = [...next.inventory, { id: event.id, kind: event.kind ?? (event.type === 'identify' ? 'plante' : 'animal'), name: event.name, at }]
     next = addLog(next, { type: event.type, id: event.id, name: event.name })
     sendEvent('discovery', undefined)
-  } else if (event.type === 'consult') {
-    next.inventory = [...next.inventory, { id: event.id, kind: 'savoir', name: event.name, at: new Date().toISOString() }]
+  } else if (INVENTORY_KIND[event.type]) {
+    next.inventory = [...next.inventory, { id: event.id, kind: INVENTORY_KIND[event.type], name: event.name, at }]
     next = addLog(next, { type: event.type, id: event.id, name: event.name })
   }
   if (gained) notify({ type: 'xp', amount: gained, label: event.name })
@@ -146,6 +156,23 @@ export function recordQuiz(missionSlug, stepId, correct, total) {
 
 export function completeQuiz(missionSlug, stepId, correct, total, missions) {
   finish(recordQuiz(missionSlug, stepId, correct, total), missions)
+}
+
+// Quiz libre (questions tirées des fiches) : expérience et statistiques.
+export function recordFreeQuiz(correct, total) {
+  const next = {
+    ...state,
+    xp: state.xp + correct * XP.quizCorrect,
+    stats: {
+      ...state.stats,
+      quizAnswered: state.stats.quizAnswered + total,
+      quizCorrect: state.stats.quizCorrect + correct,
+      perfectQuizzes: state.stats.perfectQuizzes + (correct === total && total > 0 ? 1 : 0),
+      freeQuizzes: (state.stats.freeQuizzes ?? 0) + 1,
+    },
+  }
+  if (correct === total && total > 0) sendEvent('quiz_perfect')
+  finish(next, [])
 }
 
 export function recordChallenge(score) {

@@ -9,7 +9,17 @@
 // documentation. Chaque question de quiz cite la fiche qui fonde sa réponse.
 
 export const GAME_MODES = ['exploration', 'patrimoine', 'nature', 'histoire', 'defis'];
-export const STEP_TYPES = ['explore', 'identify', 'discover', 'talk', 'consult', 'quiz'];
+// read : lire des fiches culturelles publiées (« toutes », « categorie-<slug> »,
+//        « communaute-<slug> ») ; community : rencontrer des communautés
+//        publiées (« toutes » ou leur slug). Ces cibles suivent la plateforme :
+//        une fiche ou une communauté publiée plus tard compte aussi.
+// Pour identify / discover, « atlas-<catégorie> » désigne toute fiche de
+// l'atlas de cette catégorie.
+export const STEP_TYPES = ['explore', 'identify', 'discover', 'talk', 'consult', 'read', 'community', 'quiz'];
+
+// Cibles « groupe » : une seule cible peut compter plusieurs fois.
+export const isGroupTarget = (type, target) =>
+  target === 'toutes' || target.startsWith('atlas-') || target.startsWith('categorie-') || target.startsWith('communaute-') || type === 'read';
 
 export const DEFAULT_GAME_MISSIONS = [
   {
@@ -149,6 +159,45 @@ export const DEFAULT_GAME_MISSIONS = [
       },
     ],
   },
+  {
+    slug: 'panorama-du-congo',
+    title: 'Le panorama du Congo',
+    description:
+      'Du haut du belvédère, une longue-vue embrasse tout le pays : le fleuve et ses chutes, les lacs, les volcans et les montagnes, les grands barrages. Toutes les fiches de l’atlas vivant y sont réunies.',
+    objective: 'Monter au belvédère, puis découvrir deux eaux, un relief et un barrage à la longue-vue.',
+    mode: 'exploration',
+    environment: 'ituri',
+    rewardXp: 160,
+    badge: 'explorateur-du-congo',
+    position: 5,
+    contentRefs: ['fleuve-congo', 'nyiragongo', 'rapides-inga'],
+    steps: [
+      { id: 'belvedere', type: 'explore', label: 'Monter au belvédère', targets: ['belvedere'], count: 1 },
+      { id: 'eaux', type: 'discover', label: 'Découvrir deux fleuves, lacs ou chutes', targets: ['atlas-eaux'], count: 2 },
+      { id: 'reliefs', type: 'discover', label: 'Découvrir un volcan ou une montagne', targets: ['atlas-reliefs'], count: 1 },
+      { id: 'barrages', type: 'discover', label: 'Découvrir un barrage', targets: ['atlas-barrages'], count: 1 },
+    ],
+  },
+  {
+    slug: 'voix-des-communautes',
+    title: 'Les voix des communautés',
+    description:
+      'Sous l’arbre à palabres, chaque communauté publiée dans URITHI présente ses noms, ses lieux, ses langues et les savoirs qu’elle a documentés.',
+    objective: 'Rencontrer une communauté, puis lire trois fiches culturelles.',
+    mode: 'patrimoine',
+    environment: 'ituri',
+    rewardXp: 180,
+    badge: 'ambassadeur-des-traditions',
+    position: 6,
+    contentRefs: [],
+    // Brouillon : à publier depuis l'administration quand des communautés et
+    // des fiches sont publiées.
+    status: 'DRAFT',
+    steps: [
+      { id: 'communaute', type: 'community', label: 'Rencontrer une communauté à l’arbre à palabres', targets: ['toutes'], count: 1 },
+      { id: 'fiches', type: 'read', label: 'Lire trois fiches culturelles', targets: ['toutes'], count: 3 },
+    ],
+  },
 ];
 
 // Crée les missions fournies qui n'existent pas encore (jamais d'écrasement :
@@ -162,7 +211,7 @@ export async function ensureGameMissions(prisma) {
         ...mission,
         steps: JSON.stringify(mission.steps),
         contentRefs: JSON.stringify(mission.contentRefs),
-        status: 'PUBLISHED',
+        status: mission.status ?? 'PUBLISHED',
         builtin: true,
       },
     });

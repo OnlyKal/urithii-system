@@ -1,15 +1,15 @@
-import { ArrowRight, BadgeCheck, BookOpenText, Check, ExternalLink, Info, Leaf, PawPrint, RotateCcw, Sparkles, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpenText, Check, ExternalLink, Info, Leaf, Mountain, PawPrint, RotateCcw, Sparkles, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { contentName, contentParagraph, culturalItems, natureCard, sourceRef } from '../core/content.js'
+import { POINTS } from '../../data/atlasContent.js'
+import { contentName, contentParagraph, natureCard, sourceRef } from '../core/content.js'
+import { shuffle } from '../core/quizGen.js'
 import { badgeInfo } from '../core/rewards.js'
-import { VERIFICATION_LABELS } from '../../labels.js'
 import { g } from '../i18n.js'
-import { SUBJECTS } from '../world/ituri/catalog.js'
 
 // Fenêtres d'interaction : fiches, identification, dialogues, quiz,
 // récompenses. Toutes les informations proviennent des fiches URITHI.
 
-export function GameWindow({ title, eyebrow, icon: Icon, onClose, children, wide = false, className = '' }) {
+export function GameWindow({ title, eyebrow, icon: Icon, onClose, onBack, children, wide = false, className = '' }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose?.()
     window.addEventListener('keydown', onKey)
@@ -19,6 +19,11 @@ export function GameWindow({ title, eyebrow, icon: Icon, onClose, children, wide
     <div className="game-window-backdrop" onPointerDown={(e) => e.target === e.currentTarget && onClose?.()}>
       <section className={`game-window ${wide ? 'is-wide' : ''} ${className}`} role="dialog" aria-modal="true" aria-label={title}>
         <header className="game-window-head">
+          {onBack && (
+            <button type="button" className="game-close game-back-button" onClick={onBack} aria-label={g('pf.retour')}>
+              <ArrowLeft size={20} aria-hidden="true" />
+            </button>
+          )}
           {Icon && (
             <span className="game-window-icon" aria-hidden="true">
               <Icon size={20} />
@@ -41,12 +46,12 @@ export function GameWindow({ title, eyebrow, icon: Icon, onClose, children, wide
 }
 
 // Fiche documentaire d'une espèce (atlas vivant d'URITHI).
-export function NatureCard({ id, status, onClose }) {
+export function NatureCard({ id, status, onClose, onBack }) {
   const card = natureCard(id)
   if (!card) return null
-  const isAnimal = card.categoryId === 'faune'
+  const icon = card.categoryId === 'faune' ? PawPrint : card.categoryId === 'flore' ? Leaf : Mountain
   return (
-    <GameWindow title={card.name} eyebrow={status ?? card.category} icon={isAnimal ? PawPrint : Leaf} onClose={onClose} wide className="nature-card">
+    <GameWindow title={card.name} eyebrow={status ?? card.category} icon={icon} onClose={onClose} onBack={onBack} wide className="nature-card">
       <div className="nature-card-grid">
         <figure className="nature-photo">
           {card.photo ? (
@@ -98,14 +103,6 @@ export function NatureCard({ id, status, onClose }) {
   )
 }
 
-const shuffle = (list) => {
-  const out = [...list]
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
-}
 
 // Indice d'identification : le trait le plus distinctif de la fiche.
 function hintFor(card) {
@@ -116,10 +113,11 @@ function hintFor(card) {
   return card.summary
 }
 
-// Identification d'une plante : choisir le bon nom parmi trois.
+// Identification d'une plante : choisir le bon nom parmi trois, les autres
+// propositions étant d'autres plantes de l'atlas.
 export function IdentifyChoice({ id, onSuccess, onClose }) {
   const [choices] = useState(() => {
-    const others = SUBJECTS.filter((s) => s.kind === 'plant' && s.id !== id).map((s) => s.id)
+    const others = POINTS.filter((p) => p.category === 'flore' && p.id !== id).map((p) => p.id)
     const pick = shuffle(others).slice(0, 2)
     return shuffle([id, ...pick])
   })
@@ -150,72 +148,10 @@ export function IdentifyChoice({ id, onSuccess, onClose }) {
   )
 }
 
-// Espace culturel du village : fiches publiées de la catégorie.
-export function CultureCard({ station, onClose }) {
-  const [state, setState] = useState({ loading: true })
-  useEffect(() => {
-    let alive = true
-    culturalItems(station.category)
-      .then((r) => alive && setState({ ...r, loading: false }))
-      .catch(() => alive && setState({ loading: false, error: true }))
-    return () => {
-      alive = false
-    }
-  }, [station.category])
-  return (
-    <GameWindow title={station.name} eyebrow={station.theme} icon={BookOpenText} onClose={onClose} wide>
-      <p className="game-lead">{g('espaceIntro', { theme: station.theme.toLowerCase() })}</p>
-      {state.loading && <p className="game-muted">{g('chargementFiches')}</p>}
-      {state.error && <p className="game-feedback is-wrong">{g('fichesIndisponibles')}</p>}
-      {!state.loading && !state.error && state.items.length === 0 && (
-        <div className="game-empty">
-          <Sparkles size={22} aria-hidden="true" />
-          <p>{g('aucuneFiche')}</p>
-        </div>
-      )}
-      {state.items?.length > 0 && (
-        <ul className="culture-list">
-          {state.items.map((item) => {
-            const verified = ['SOURCED', 'CORROBORATED'].includes(item.verificationStatus)
-            return (
-              <li key={item.slug}>
-                <a href={`/contenus/${item.slug}`} target="_blank" rel="noreferrer" className="culture-item">
-                  {item.cover ? (
-                    <img src={item.cover.url} alt="" />
-                  ) : (
-                    <span className="culture-thumb" aria-hidden="true">
-                      <BookOpenText size={20} />
-                    </span>
-                  )}
-                  <span className="culture-text">
-                    <strong>{item.title}</strong>
-                    {item.communities?.length > 0 && <small>{item.communities.map((c) => c.name).join(', ')}</small>}
-                    {item.summary && <span className="culture-summary">{item.summary}</span>}
-                    <span className={`game-tag ${verified ? 'is-mint' : 'is-orange'}`}>
-                      {verified ? <BadgeCheck size={13} aria-hidden="true" /> : <Info size={13} aria-hidden="true" />}
-                      {VERIFICATION_LABELS[item.verificationStatus] ?? item.verificationStatus}
-                    </span>
-                  </span>
-                  <ExternalLink size={15} className="culture-open" aria-hidden="true" />
-                </a>
-              </li>
-            )
-          })}
-        </ul>
-      )}
-      {state.total > (state.items?.length ?? 0) && (
-        <a className="game-link" href={`/themes/${station.category}`} target="_blank" rel="noreferrer">
-          {g('voirToutes', { n: state.total })} <ExternalLink size={14} aria-hidden="true" />
-        </a>
-      )}
-      <p className="game-note">{g('noteCulture')}</p>
-    </GameWindow>
-  )
-}
-
 // Dialogue avec un personnage : présentation, récit tiré des fiches, puis
-// éventuellement un quiz.
-export function Dialogue({ npc, quiz, onQuiz, onRead, onClose }) {
+// éventuellement un quiz : celui de la mission en cours, sinon des questions
+// tirées des fiches URITHI (onFreeQuiz).
+export function Dialogue({ npc, quiz, onQuiz, onFreeQuiz, onRead, onClose }) {
   const lines = useMemo(() => {
     const out = [{ text: npc.greeting }]
     for (const [id, i] of npc.story ?? []) {
@@ -267,6 +203,11 @@ export function Dialogue({ npc, quiz, onQuiz, onRead, onClose }) {
             {g('repondreQuestions')} <ArrowRight size={16} aria-hidden="true" />
           </button>
         )}
+        {last && !quiz && onFreeQuiz && (
+          <button type="button" className="game-button ghost" onClick={onFreeQuiz}>
+            {g('pf.posezQuestions')}
+          </button>
+        )}
         {last && !quiz && (
           <button type="button" className="game-button" onClick={onClose} autoFocus>
             {g('merci')}
@@ -288,7 +229,7 @@ export function Quiz({ step, onDone, onClose, sound }) {
   const last = index === step.questions.length - 1
   const answered = picked !== null
   const correct = picked === question.answer
-  const source = sourceRef(question.source)
+  const source = question.link ? { name: question.sourceName ?? question.source, link: question.link } : sourceRef(question.source)
   const choose = (i) => {
     if (answered) return
     setPicked(i)

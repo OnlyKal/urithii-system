@@ -1,4 +1,5 @@
-import { NPCS, PLAY_RADIUS, STATIONS, SUBJECTS, ZONE_CENTERS } from '../world/ituri/catalog.js'
+import { getPlatform } from '../core/platform.js'
+import { NPCS, PANORAMA, PLAY_RADIUS, SUBJECTS, TRACES, villageStations, ZONE_CENTERS } from '../world/ituri/catalog.js'
 import { HUTS } from '../world/ituri/layout.js'
 import { groundColor, groundHeight, nearRiver, WATER_Y } from '../world/ituri/terrain.js'
 
@@ -43,7 +44,8 @@ export const ZONE_POSITIONS = ZONE_CENTERS
 export function targetPosition(id, runtime) {
   const live = runtime?.interactables.get(id)
   if (live) return live.getPosition()
-  return ZONE_CENTERS[id] ?? SUBJECTS.find((s) => s.id === id) ?? NPCS.find((n) => n.id === id) ?? STATIONS.find((s) => s.id === id) ?? null
+  if (id === PANORAMA.id) return PANORAMA
+  return ZONE_CENTERS[id] ?? SUBJECTS.find((s) => s.id === id) ?? TRACES.find((t) => t.id === id) ?? NPCS.find((n) => n.id === id) ?? villageStations(getPlatform().roots).find((s) => s.id === id) ?? null
 }
 
 // Dessine la carte. « view » : { cx, cz, radius } (mini-carte centrée sur le
@@ -69,10 +71,11 @@ export function drawMap(ctx, size, { runtime, targets = [], discovered = {}, vie
     ctx.fill()
   }
   // Espaces culturels et personnages.
-  for (const s of STATIONS) dot(ctx, sx(s.x), sz(s.z), discovered[s.id] ? '#c8c2b8' : '#ffb547', 3.2)
+  for (const s of villageStations(getPlatform().roots)) dot(ctx, sx(s.x), sz(s.z), discovered[s.id] ? '#c8c2b8' : '#ffb547', 3.2)
+  dot(ctx, sx(PANORAMA.x), sz(PANORAMA.z), '#ffffff', 3.2, '#3f5ca6')
   for (const n of NPCS) dot(ctx, sx(n.x), sz(n.z), '#ffffff', 3.6, '#1e3a8a')
   // Espèces déjà découvertes.
-  for (const s of SUBJECTS) {
+  for (const s of [...SUBJECTS, ...TRACES]) {
     if (!discovered[s.id]) continue
     const p = targetPosition(s.id, runtime)
     dot(ctx, sx(p.x), sz(p.z), s.kind === 'animal' ? '#c27a12' : '#2f6c4b', 3)

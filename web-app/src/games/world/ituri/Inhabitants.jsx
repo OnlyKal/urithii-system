@@ -9,7 +9,8 @@ import { ANIMAL_BEHAVIOUR, ANIMAL_MODELS } from '../../models/animals.jsx'
 import { Bridge, FirePit, Granary, House, RoundHut, StationDecor, UrithiPost } from '../../models/buildings.jsx'
 import { Humanoid } from '../../models/Humanoid.jsx'
 import { foliageMaterial, lianaTree, limbaliTree, palmTree, parasolTree } from '../../models/vegetation.js'
-import { NPCS, STATIONS, SUBJECTS } from './catalog.js'
+import { usePlatform } from '../../core/platform.js'
+import { NPCS, PANORAMA, SUBJECTS, TRACES, villageStations } from './catalog.js'
 import { FIRE, HUTS } from './layout.js'
 import { BRIDGE, groundHeight, inWater } from './terrain.js'
 
@@ -209,18 +210,60 @@ export function Npcs() {
   return NPCS.map((n) => <Npc key={n.id} npc={n} />)
 }
 
+const POST_COLOR = { memoire: '#ffb547', langues: '#ffb547', savoirs: '#ffb547', communautes: '#c2552b', mediatheque: '#3f5ca6' }
+
 function Station({ station }) {
   const y = groundHeight(station.x, station.z)
   const position = useMemo(() => new THREE.Vector3(station.x, y, station.z), [station, y])
-  const entry = useMemo(() => ({ id: station.id, kind: 'station', name: station.name, radius: 3.6, getPosition: () => position, station }), [station, position])
+  const entry = useMemo(() => ({ id: station.id, kind: 'station', name: station.name, radius: station.icon === 'palaver' ? 4.4 : 3.6, solid: station.icon === 'palaver' ? 0.7 : undefined, getPosition: () => position, station }), [station, position])
+  useInteractable(entry)
+  const tall = station.icon === 'memory' || station.icon === 'palaver'
+  return (
+    <group position={[station.x, y, station.z]} rotation={[0, ['theme', 'media'].includes(station.icon) ? Math.atan2(-30 - station.x, 20 - station.z) : 0, 0]}>
+      <StationDecor kind={station.icon} />
+      <group position={[tall ? 2.2 : 1.6, 0, 1.4]}>
+        <UrithiPost color={POST_COLOR[station.id] ?? (station.icon === 'theme' ? '#ffd08a' : '#29cb94')} />
+      </group>
+      <Marker id={station.id} height={station.icon === 'palaver' ? 7 : tall ? 4 : 2.8} />
+    </group>
+  )
+}
+
+// Espaces du village : suivent le référentiel publié (catégories racines).
+function Stations() {
+  const platform = usePlatform()
+  const stations = useMemo(() => villageStations(platform.roots), [platform.roots])
+  return stations.map((s) => <Station key={s.id} station={s} />)
+}
+
+// Bornes d'observation des fiches de l'atlas sans modèle 3D.
+function Trace({ trace }) {
+  const y = groundHeight(trace.x, trace.z)
+  const position = useMemo(() => new THREE.Vector3(trace.x, y, trace.z), [trace, y])
+  const entry = useMemo(() => ({ id: trace.id, kind: 'trace', traceKind: trace.kind, name: contentName(trace.id), radius: 3, solid: 0.2, getPosition: () => position }), [trace, position])
   useInteractable(entry)
   return (
-    <group position={[station.x, y, station.z]}>
-      <StationDecor kind={station.icon} />
-      <group position={[station.icon === 'memory' ? 2.2 : 1.6, 0, 1.4]}>
-        <UrithiPost color={station.id === 'memoire' || station.id === 'langues' ? '#ffb547' : '#29cb94'} />
-      </group>
-      <Marker id={station.id} height={station.icon === 'memory' ? 4 : 2.8} />
+    <group position={[trace.x, y, trace.z]} rotation={[0, trace.x * 7.3, 0]}>
+      <StationDecor kind="trace" />
+      <Marker id={trace.id} height={1.9} />
+    </group>
+  )
+}
+
+export function Traces() {
+  return TRACES.map((t) => <Trace key={t.id} trace={t} />)
+}
+
+// Longue-vue du belvédère.
+export function Panorama() {
+  const y = groundHeight(PANORAMA.x, PANORAMA.z)
+  const position = useMemo(() => new THREE.Vector3(PANORAMA.x, y, PANORAMA.z), [y])
+  const entry = useMemo(() => ({ id: PANORAMA.id, kind: 'panorama', name: 'longue-vue', radius: 3.2, solid: 0.3, getPosition: () => position }), [position])
+  useInteractable(entry)
+  return (
+    <group position={[PANORAMA.x, y, PANORAMA.z]}>
+      <StationDecor kind="spyglass" />
+      <Marker id={PANORAMA.id} height={2.4} />
     </group>
   )
 }
@@ -244,9 +287,7 @@ export function Village() {
       <group position={[FIRE.x, groundHeight(FIRE.x, FIRE.z), FIRE.z]}>
         <FirePit />
       </group>
-      {STATIONS.map((s) => (
-        <Station key={s.id} station={s} />
-      ))}
+      <Stations />
       <Bridge x0={BRIDGE.x0} x1={BRIDGE.x1} z={BRIDGE.z} deck={BRIDGE.deck} />
     </group>
   )

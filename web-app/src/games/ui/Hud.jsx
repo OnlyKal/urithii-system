@@ -112,11 +112,23 @@ export function HudButtons({ onMap, onJournal, onInventory, onPause, sound, onSo
   )
 }
 
-const VERB = { plant: 'identifier', animal: 'observer', npc: 'parler', station: 'consulter' }
+const VERB = { plant: 'identifier', animal: 'observer', npc: 'parler', station: 'consulter', panorama: 'regarder' }
 
 export function InteractPrompt({ target, discovered, onInteract }) {
   if (!target) return null
   const known = discovered[target.id]
+  if (target.kind === 'trace') {
+    const verb = target.traceKind === 'plant' ? 'identifier' : 'observer'
+    return (
+      <button type="button" className="hud-prompt" onClick={onInteract}>
+        <kbd>E</kbd>
+        <Hand size={16} aria-hidden="true" />
+        <span>
+          {g(`verbe.${verb}`)} <strong>{known ? target.name : g('pf.traceInconnue')}</strong>
+        </span>
+      </button>
+    )
+  }
   return (
     <button type="button" className="hud-prompt" onClick={onInteract}>
       <kbd>E</kbd>

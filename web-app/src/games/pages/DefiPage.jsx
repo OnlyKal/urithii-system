@@ -2,12 +2,17 @@ import { ArrowLeft, Check, ExternalLink, Play, RotateCcw, Timer, Trophy, X } fro
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { atlasPhoto, CATEGORIES, POINTS } from '../../data/atlasContent.js'
+import { loadPlatform } from '../core/platform.js'
 import { recordChallenge, useProgress } from '../core/progress.js'
+import { mixedQuestions } from '../core/quizGen.js'
 import { g } from '../i18n.js'
 import '../games.css'
 
-// Mode « Défis et connaissances » : défi éclair d'identification. Une
-// photographie de l'atlas, quatre propositions, soixante secondes.
+// Mode « Défis et connaissances », deux défis de soixante secondes :
+// - défi photo : une photographie de l'atlas, quatre propositions ;
+// - défi des savoirs : questions générées à partir des fiches publiées et de
+//   l'atlas (thème, communauté, province, statut de conservation…), chacune
+//   citant sa fiche source.
 
 const DURATION = 60
 const POOL = POINTS.filter((p) => atlasPhoto(p.id))
@@ -26,6 +31,8 @@ function question(category, exclude) {
 export default function DefiPage() {
   const progress = useProgress()
   const [category, setCategory] = useState('tout')
+  const [kind, setKind] = useState('photo')
+  const deck = useRef([])
   const [phase, setPhase] = useState('ready')
   const [left, setLeft] = useState(DURATION)
   const [score, setScore] = useState(0)
@@ -37,13 +44,28 @@ export default function DefiPage() {
   const categories = useMemo(() => CATEGORIES.filter((c) => POOL.filter((p) => p.category === c.id).length >= 4), [])
 
   const next = useCallback(() => {
+    if (kind === 'savoirs') {
+      const q = deck.current.shift()
+      if (!q) {
+        setLeft(0)
+        return
+      }
+      const answer = { id: 'answer', name: q.choices[q.answer] }
+      setCurrent({ text: q.q, link: q.link, source: q.sourceName, answer, choices: q.choices.map((c, i) => (i === q.answer ? answer : { id: `c${i}`, name: c })) })
+      setPicked(null)
+      return
+    }
     const q = question(category, seen.current)
     seen.current.add(q.answer.id)
     setCurrent(q)
     setPicked(null)
-  }, [category])
+  }, [category, kind])
 
-  const start = () => {
+  const start = async () => {
+    if (kind === 'savoirs') {
+      await loadPlatform().catch(() => {})
+      deck.current = await mixedQuestions(40, { culture: 0.5, categories: category === 'tout' ? undefined : [category] })
+    }
     seen.current = new Set()
     setScore(0)
     setAsked(0)
@@ -72,7 +94,7 @@ export default function DefiPage() {
     setPicked(p.id)
     setAsked((n) => n + 1)
     if (right) setScore((s) => s + 1)
-    setHistory((h) => [...h, { id: current.answer.id, name: current.answer.name, right }])
+    setHistory((h) => [...h, current.text ? { link: current.link, name: current.source, right } : { link: `/atlas?lieu=${current.answer.id}`, name: current.answer.name, right }])
     setTimeout(next, right ? 650 : 1300)
   }
 
@@ -91,6 +113,14 @@ export default function DefiPage() {
 
       {phase === 'ready' && (
         <div className="defi-start">
+          <div className="defi-categories" role="radiogroup" aria-label={g('pf.typeDefi')}>
+            {[['photo', g('pf.defiPhoto')], ['savoirs', g('pf.defiSavoirs')]].map(([id, label]) => (
+              <button key={id} type="button" role="radio" aria-checked={kind === id} className={kind === id ? 'is-active' : ''} onClick={() => setKind(id)}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {kind === 'savoirs' && <p className="games-small">{g('pf.defiSavoirsAide')}</p>}
           <div className="defi-categories" role="radiogroup" aria-label={g('theme')}>
             {[{ id: 'tout', plural: g('toutesCategories') }, ...categories].map((c) => (
               <button key={c.id} type="button" role="radio" aria-checked={category === c.id} className={category === c.id ? 'is-active' : ''} onClick={() => setCategory(c.id)}>
@@ -122,13 +152,15 @@ export default function DefiPage() {
               {score} / {asked}
             </span>
           </div>
-          <figure className="defi-photo">
-            <img src={current.photo.src} srcSet={current.photo.srcSet} sizes="(max-width: 720px) 92vw, 640px" alt={g('photoMystere')} />
-            <figcaption>
-              © {current.photo.author} · {current.photo.license}
-            </figcaption>
-          </figure>
-          <p className="defi-question">{g('quiEstCe')}</p>
+          {current.photo && (
+            <figure className="defi-photo">
+              <img src={current.photo.src} srcSet={current.photo.srcSet} sizes="(max-width: 720px) 92vw, 640px" alt={g('photoMystere')} />
+              <figcaption>
+                © {current.photo.author} · {current.photo.license}
+              </figcaption>
+            </figure>
+          )}
+          <p className="defi-question">{current.text ?? g('quiEstCe')}</p>
           <div className="defi-choices">
             {current.choices.map((p) => {
               const state = picked ? (p.id === current.answer.id ? 'is-right' : p.id === picked ? 'is-wrong' : '') : ''
@@ -152,7 +184,7 @@ export default function DefiPage() {
             {history.map((h, i) => (
               <li key={i} className={h.right ? 'is-right' : 'is-wrong'}>
                 {h.right ? <Check size={14} aria-hidden="true" /> : <X size={14} aria-hidden="true" />}
-                <Link to={`/atlas?lieu=${h.id}`}>
+                <Link to={h.link}>
                   {h.name} <ExternalLink size={12} aria-hidden="true" />
                 </Link>
               </li>

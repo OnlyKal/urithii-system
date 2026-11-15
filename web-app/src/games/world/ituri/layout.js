@@ -1,4 +1,4 @@
-import { NPCS, PLAY_RADIUS, RIVER_HALF_WIDTH, riverX, SPAWN, STATIONS, SUBJECTS, VILLAGE, zoneAt } from './catalog.js'
+import { HUBS, NPCS, PANORAMA, PLAY_RADIUS, RIVER_HALF_WIDTH, riverX, SPAWN, STATION_SLOTS, STATIONS, SUBJECTS, TRACES, VILLAGE, zoneAt } from './catalog.js'
 import { groundHeight, pathDistance } from './terrain.js'
 
 // Placement de la végétation, des habitations et des rochers. Génération
@@ -41,6 +41,12 @@ const CLEAR = [
   ...SUBJECTS.filter((s) => s.kind === 'plant').map((s) => ({ x: s.x, z: s.z, r: 4.5 })),
   ...NPCS.map((n) => ({ x: n.x, z: n.z, r: 4 })),
   ...STATIONS.map((s) => ({ x: s.x, z: s.z, r: 4 })),
+  // Tous les emplacements sont réservés, occupés ou non : le monde ne
+  // dépend pas du référentiel chargé.
+  ...STATION_SLOTS.map((s) => ({ x: s.x, z: s.z, r: 3.6 })),
+  ...HUBS.map((s) => ({ x: s.x, z: s.z, r: 4 })),
+  ...TRACES.map((t) => ({ x: t.x, z: t.z, r: 3 })),
+  { x: PANORAMA.x, z: PANORAMA.z, r: 3 },
   ...HUTS.map((h) => ({ x: h.x, z: h.z, r: 5.5 })),
   { x: SPAWN.x, z: SPAWN.z, r: 5 },
 ]

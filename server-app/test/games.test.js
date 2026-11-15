@@ -19,13 +19,15 @@ const newMission = {
 };
 
 describe('module Jeux', () => {
-  test('les missions fournies sont créées une seule fois et publiées', async () => {
+  test('les missions fournies sont créées une seule fois, publiées sauf les brouillons', async () => {
     await ensureGameMissions(prisma);
     await ensureGameMissions(prisma);
     assert.equal(await prisma.gameMission.count(), DEFAULT_GAME_MISSIONS.length);
     const res = await request(app).get('/api/public/games/missions');
     assert.equal(res.status, 200);
-    assert.equal(res.body.missions.length, DEFAULT_GAME_MISSIONS.length);
+    const published = DEFAULT_GAME_MISSIONS.filter((m) => (m.status ?? 'PUBLISHED') === 'PUBLISHED');
+    assert.equal(res.body.missions.length, published.length);
+    assert.ok(!res.body.missions.some((m) => m.slug === 'voix-des-communautes'));
     const forest = res.body.missions.find((m) => m.slug === 'secrets-de-la-foret');
     assert.ok(forest.steps.find((s) => s.type === 'quiz').questions.every((q) => q.source));
     assert.equal(forest.builtin, undefined);
@@ -60,6 +62,22 @@ describe('module Jeux', () => {
     assert.equal((await withOrigin(admin.post('/api/admin/games/missions')).send(badQuiz)).status, 400);
     const tooMany = { ...newMission, steps: [{ ...newMission.steps[0], count: 4 }] };
     assert.equal((await withOrigin(admin.post('/api/admin/games/missions')).send(tooMany)).status, 400);
+
+    // Cibles qui suivent la plateforme : un groupe peut compter plusieurs fois.
+    const dynamic = {
+      ...newMission,
+      slug: 'mission-plateforme',
+      steps: [
+        { id: 'faune', type: 'discover', label: 'Observer trois animaux de l’atlas', targets: ['atlas-faune'], count: 3 },
+        { id: 'fiches', type: 'read', label: 'Lire cinq fiches', targets: ['toutes'], count: 5 },
+        { id: 'theme', type: 'read', label: 'Lire deux fiches de gastronomie', targets: ['categorie-gastronomie-et-alimentation'], count: 2 },
+        { id: 'communautes', type: 'community', label: 'Rencontrer deux communautés', targets: ['toutes'], count: 2 },
+      ],
+    };
+    const dynamicRes = await withOrigin(admin.post('/api/admin/games/missions')).send(dynamic);
+    assert.equal(dynamicRes.status, 201, JSON.stringify(dynamicRes.body));
+    const badType = { ...newMission, slug: 'mauvais-type', steps: [{ ...newMission.steps[0], type: 'inconnu' }] };
+    assert.equal((await withOrigin(admin.post('/api/admin/games/missions')).send(badType)).status, 400);
 
     const builtin = await prisma.gameMission.findUnique({ where: { slug: 'premiers-pas' } });
     assert.equal((await withOrigin(admin.delete(`/api/admin/games/missions/${builtin.id}`))).status, 400);

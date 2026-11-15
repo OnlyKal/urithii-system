@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react'
 import * as THREE from 'three'
 import { HDRI, HdContext, preloadHd } from '../hd/assets.js'
 import { Butterflies, Birds, ForestMotes, LightShafts, Lighting } from '../world/ituri/Atmosphere.jsx'
-import { Animals, Npcs, Specimens, Village } from '../world/ituri/Inhabitants.jsx'
+import { Animals, Npcs, Panorama, Specimens, Traces, Village } from '../world/ituri/Inhabitants.jsx'
 import { River, Terrain, Vegetation } from '../world/ituri/Landscape.jsx'
 import { attachLook } from './input.js'
 import { Player } from './Player.jsx'
@@ -82,6 +82,8 @@ export default function GameScene({ quality, runtime, input, layout, outfit, ava
           <>
             <Village />
             <Specimens />
+            <Traces />
+            <Panorama />
           </>
         )}
         {stage >= 5 && (

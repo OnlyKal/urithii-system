@@ -228,6 +228,114 @@ export function StationDecor({ kind }) {
       </group>
     )
   }
+  if (kind === 'palaver') {
+    // Arbre à palabres : grand tronc, couronne large, bancs en cercle.
+    return (
+      <group>
+        <mesh position={[0, 2.2, 0]} castShadow>
+          <cylinderGeometry args={[0.45, 0.75, 4.4, 9]} />
+          {mat('#5b4330')}
+        </mesh>
+        <mesh position={[0, 5, 0]} scale={[1, 0.55, 1]} castShadow>
+          <dodecahedronGeometry args={[3.4, 1]} />
+          {mat('#3f6b35')}
+        </mesh>
+        {Array.from({ length: 5 }, (_, i) => {
+          const a = (i / 5) * Math.PI * 2
+          return (
+            <mesh key={i} position={[Math.cos(a) * 2.3, 0.25, Math.sin(a) * 2.3]} rotation={[0, -a, 0]} castShadow>
+              <boxGeometry args={[0.4, 0.18, 1.4]} />
+              {mat(WOOD)}
+            </mesh>
+          )
+        })}
+      </group>
+    )
+  }
+  if (kind === 'media') {
+    // Case des sons et des images : abri, tambours et panneau.
+    return (
+      <group>
+        {[[-1.3, -1], [1.3, -1], [-1.3, 1], [1.3, 1]].map(([x, z]) => (
+          <mesh key={`${x}${z}`} position={[x, 1.1, z]} castShadow>
+            <cylinderGeometry args={[0.08, 0.1, 2.2, 6]} />
+            {mat(WOOD)}
+          </mesh>
+        ))}
+        <mesh position={[0, 2.5, 0]} castShadow>
+          <coneGeometry args={[2.4, 1.1, 6]} />
+          {mat(THATCH_DARK)}
+        </mesh>
+        {[[-0.5, 0.42, 0.55], [0.45, 0.32, 0.4]].map(([x, h, r]) => (
+          <mesh key={x} position={[x, h, 0.2]} castShadow>
+            <cylinderGeometry args={[r, r * 0.8, h * 2, 12]} />
+            {mat('#7a4a2a')}
+          </mesh>
+        ))}
+        <mesh position={[0, 1.3, -0.95]}>
+          <boxGeometry args={[1.8, 1.1, 0.06]} />
+          <meshStandardMaterial color="#1e3a8a" emissive="#1e3a8a" emissiveIntensity={0.25} roughness={0.6} />
+        </mesh>
+      </group>
+    )
+  }
+  if (kind === 'theme') {
+    // Espace d'un thème du référentiel : petit abri et table de lecture.
+    return (
+      <group>
+        {[[-1, -0.8], [1, -0.8], [-1, 0.8], [1, 0.8]].map(([x, z]) => (
+          <mesh key={`${x}${z}`} position={[x, 0.95, z]} castShadow>
+            <cylinderGeometry args={[0.07, 0.08, 1.9, 6]} />
+            {mat(WOOD)}
+          </mesh>
+        ))}
+        <mesh position={[0, 2.2, 0]} castShadow>
+          <coneGeometry args={[1.9, 0.9, 4]} />
+          {mat(THATCH)}
+        </mesh>
+        <mesh position={[0, 0.7, 0]} castShadow>
+          <boxGeometry args={[1.3, 0.1, 0.7]} />
+          {mat(WOOD)}
+        </mesh>
+        <mesh position={[0, 0.8, 0]} rotation={[0, 0.3, 0]}>
+          <boxGeometry args={[0.5, 0.08, 0.36]} />
+          {mat('#f1e4c8')}
+        </mesh>
+      </group>
+    )
+  }
+  if (kind === 'trace') {
+    // Borne d'observation en forêt : petit poteau et plaque.
+    return (
+      <group>
+        <mesh position={[0, 0.55, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.09, 1.1, 6]} />
+          {mat(WOOD)}
+        </mesh>
+        <mesh position={[0, 1.05, 0.05]} rotation={[-0.5, 0, 0]}>
+          <boxGeometry args={[0.55, 0.38, 0.05]} />
+          {mat('#d9c9a3')}
+        </mesh>
+      </group>
+    )
+  }
+  if (kind === 'spyglass') {
+    // Longue-vue du belvédère sur son trépied.
+    return (
+      <group>
+        {[0, 2.1, 4.2].map((a) => (
+          <mesh key={a} position={[Math.cos(a) * 0.3, 0.6, Math.sin(a) * 0.3]} rotation={[Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3]}>
+            <cylinderGeometry args={[0.03, 0.04, 1.25, 5]} />
+            {mat('#3b3a36')}
+          </mesh>
+        ))}
+        <mesh position={[0, 1.3, 0]} rotation={[Math.PI / 2 - 0.25, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.11, 0.9, 10]} />
+          <meshStandardMaterial color="#b08d57" metalness={0.6} roughness={0.35} />
+        </mesh>
+      </group>
+    )
+  }
   if (kind === 'speech') {
     return (
       <group>

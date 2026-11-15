@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GAME_MODES, STEP_TYPES } from '../data/gameMissions.js';
+import { GAME_MODES, isGroupTarget, STEP_TYPES } from '../data/gameMissions.js';
 import { parseJson } from '../lib/text.js';
 
 // Module Jeux : validation et mise en forme des missions.
@@ -22,7 +22,10 @@ export const stepSchema = z.object({
   count: z.number().int().min(1).max(30),
   questions: z.array(questionSchema).max(20).optional(),
 }).refine((s) => s.type !== 'quiz' || (s.questions?.length ?? 0) > 0, { message: 'Un quiz comporte au moins une question', path: ['questions'] })
-  .refine((s) => s.type === 'quiz' || s.count <= s.targets.length, { message: 'Le nombre demandé dépasse le nombre de cibles', path: ['count'] });
+  .refine((s) => s.type === 'quiz' || s.targets.some((t) => isGroupTarget(s.type, t)) || s.count <= s.targets.length, {
+    message: 'Le nombre demandé dépasse le nombre de cibles',
+    path: ['count'],
+  });
 
 // Sans valeur par défaut : avec Zod 4, `.partial()` appliquerait les défauts
 // aux champs absents et une modification partielle (PATCH { status }) les
