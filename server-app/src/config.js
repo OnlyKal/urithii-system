@@ -11,6 +11,10 @@ export const config = {
   backupMirrorDir: process.env.BACKUP_MIRROR_DIR || null,
   autoBackupHours: Number(process.env.AUTO_BACKUP_HOURS ?? 24),
   maxUploadBytes: Number(process.env.MAX_UPLOAD_MB || 2048) * 1024 * 1024,
+  // Durée maximale d'une requête (envoi compris). Node coupe par défaut au
+  // bout de 5 minutes (réponse 408) : trop court pour une vidéo envoyée sur
+  // une connexion ordinaire. nginx, en amont, protège des connexions lentes.
+  requestTimeoutMs: Number(process.env.REQUEST_TIMEOUT_MIN || 180) * 60 * 1000,
   clamscanPath: process.env.CLAMSCAN_PATH || null,
   // Conversion des vidéos non lisibles partout (HEVC, MOV…) en H.264.
   ffmpegPath: process.env.FFMPEG_PATH || 'ffmpeg',

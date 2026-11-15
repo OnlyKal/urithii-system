@@ -2171,5 +2171,6 @@ export default {
   "jeux.pf.typeDefi": "Type de défi",
   "upload.connexionInterrompue": "L’envoi a été interrompu (connexion coupée). Vérifiez votre connexion et réessayez ; pour un fichier très lourd, préférez une connexion stable.",
   "upload.tropVolumineux": "Le fichier dépasse la taille acceptée par le serveur.",
-  "upload.delaiDepasse": "Le serveur n’a pas répondu à temps. Réessayez ; si le fichier est très lourd, réessayez avec une meilleure connexion."
+  "upload.delaiDepasse": "L’envoi a pris trop de temps et a été interrompu par le serveur. Réessayez avec une meilleure connexion, ou réduisez la taille de la vidéo.",
+  "upload.code": "code {code}"
 }

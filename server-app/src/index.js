@@ -13,7 +13,9 @@ await ensureAdminPlaces(prisma);
 await linkPublishedCommunities(prisma);
 await ensureGameMissions(prisma);
 
-createApp().listen(config.port, () => {
+const server = createApp().listen(config.port, () => {
   console.log(`Serveur URITHI démarré sur http://localhost:${config.port}`);
   startScheduler();
 });
+// Téléversements longs (vidéos) : pas de coupure à 5 minutes.
+server.requestTimeout = config.requestTimeoutMs;

@@ -63,7 +63,12 @@ export async function upload(path, formData) {
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
     // Réponse sans message de l'API : refus du serveur web en amont.
-    const fallback = res.status === 413 ? t('upload.tropVolumineux') : [502, 503, 504].includes(res.status) ? t('upload.delaiDepasse') : t('common.unexpectedError')
+    const fallback =
+      res.status === 413
+        ? t('upload.tropVolumineux')
+        : [408, 502, 503, 504].includes(res.status)
+          ? t('upload.delaiDepasse')
+          : `${t('common.unexpectedError')} (${t('upload.code', { code: res.status })})`
     throw new ApiError(res.status, data.error || fallback, data.details)
   }
   return data
