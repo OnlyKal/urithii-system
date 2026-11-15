@@ -87,6 +87,18 @@ function useStateClip(actions, motion, { speedFor } = {}) {
   })
 }
 
+// Vitesse au sol (m/s) de chaque animation jouée à vitesse normale : vitesse
+// du pied d'appui, mesurée sur les modèles du pack HD (game-assets/blender/
+// personnages.py). Le déplacement réel divisé par cette vitesse donne la
+// cadence qui garde les pieds posés au sol.
+const CLIP_GROUND_SPEED = {
+  joueur: { marche: 0.93, course: 2.4 },
+  joueuse: { marche: 0.8, course: 2.44 },
+  guide: { marche: 0.89, course: 2.29 },
+  ecogarde: { marche: 0.99, course: 2.55 },
+}
+const DEFAULT_GROUND_SPEED = { marche: 0.9, course: 2.4 }
+
 // Personnage : animations du squelette, clignement des yeux aléatoire,
 // bouche pendant les dialogues, léger sourire face au joueur.
 export function HdCharacter({ id, motion }) {
@@ -95,7 +107,14 @@ export function HdCharacter({ id, motion }) {
   const { actions } = useAnimations(animations, group)
   const morphs = useMemo(() => morphMeshes(scene), [scene])
   const face = useRef({ nextBlink: 1 + Math.random() * 3, blink: 0, smile: 0 })
-  useStateClip(actions, motion, { speedFor: (m, name) => (name === 'marche' ? Math.max(0.8, m.speed) : 1) })
+  const ground = CLIP_GROUND_SPEED[id] ?? DEFAULT_GROUND_SPEED
+  useStateClip(actions, motion, {
+    speedFor: (m, name) => {
+      if (!ground[name]) return 1
+      // Vitesse réelle (m/s) si elle est connue, sinon vitesse relative à la marche.
+      return m.mps !== undefined ? Math.max(0.5, m.mps / ground[name]) : name === 'marche' ? Math.max(0.8, m.speed) : 1
+    },
+  })
   useFrame((state, dt) => {
     const f = face.current
     const t = state.clock.elapsedTime

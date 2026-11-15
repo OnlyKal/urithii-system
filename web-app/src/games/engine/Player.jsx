@@ -12,8 +12,11 @@ import { useRuntime } from './runtime.js'
 // gravité, collisions, caméra à la troisième personne, détection des zones
 // et des éléments proches.
 
-const WALK = 3.4
-const RUN = 7.2
+// Vitesses (m/s) proches d'une marche soutenue et d'un petit footing : les
+// animations du pack HD sont accélérées d'autant (voir HdCharacter), pour que
+// les pieds restent posés au sol au lieu de glisser à grandes enjambées.
+const WALK = 1.8
+const RUN = 4.0
 const JUMP = 6.4
 const GRAVITY = 19
 const RADIUS = 0.4
@@ -26,7 +29,7 @@ export function Player({ input, outfit, avatar = 'joueur' }) {
   const runtime = useRuntime()
   const hd = useHd()
   const group = useRef()
-  const motion = useRef({ speed: 0, air: false })
+  const motion = useRef({ speed: 0, mps: 0, air: false })
   const { camera } = useThree()
   const timers = useRef({ zone: 0, save: 0, step: 0, distance: 0, seconds: 0, zoneId: null })
   const initialised = useRef(false)
@@ -141,6 +144,7 @@ export function Player({ input, outfit, avatar = 'joueur' }) {
       p.ry += delta * (1 - Math.exp(-dt * 12))
     }
     motion.current.speed = horizontal < 0.2 ? 0 : horizontal / WALK
+    motion.current.mps = horizontal
     motion.current.air = !p.grounded
     if (group.current) {
       group.current.position.set(p.pos.x, p.pos.y - (water ? 0.35 : 0), p.pos.z)
@@ -167,7 +171,7 @@ export function Player({ input, outfit, avatar = 'joueur' }) {
     if (p.grounded && moved > 0.001) {
       t.distance += moved
       t.step += moved
-      if (t.step > (running ? 1.9 : 1.35)) {
+      if (t.step > (running ? 1.0 : 0.65)) {
         t.step = 0
         runtime.callbacks.onStep?.(water)
       }
