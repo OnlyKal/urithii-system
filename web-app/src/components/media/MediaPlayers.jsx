@@ -371,6 +371,7 @@ export function VideoPlayer({ media, autoPlay = false, onEnded, transcriptOpen, 
           <video
             ref={videoRef}
             src={`${media.url}#t=0.1`}
+            poster={media.posterUrl ?? undefined}
             preload="metadata"
             playsInline
             controlsList={media.downloadable ? undefined : 'nodownload'}

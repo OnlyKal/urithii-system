@@ -61,6 +61,7 @@ export function MediaThumb({ media, eager = false }) {
     visual = (
       <video
         src={`${media.url}#t=1`}
+        poster={media.posterUrl ?? undefined}
         preload="metadata"
         muted
         playsInline

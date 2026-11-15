@@ -11,9 +11,11 @@ import { t, tn } from '../../i18n/index.js'
 function MediaPreview({ media, variant = 'thumbnail' }) {
   const src = `/api/admin/media/${media.id}/file?variant=${variant}`
   if (media.kind === 'PHOTO') return <img src={src} alt={media.title} className={variant === 'thumbnail' ? 'thumb' : 'preview'} loading="lazy" />
+  if (media.kind === 'VIDEO' && variant === 'thumbnail' && media.thumbnailFileId) return <img src={src} alt={media.title} className="thumb" loading="lazy" />
   if (variant === 'thumbnail') return <span className="thumb placeholder">{MEDIA_KIND_LABELS[media.kind]}</span>
   if (media.kind === 'AUDIO') return <audio controls preload="none" src={`/api/admin/media/${media.id}/file`} />
-  if (media.kind === 'VIDEO') return <video controls preload="none" className="preview" src={`/api/admin/media/${media.id}/file`} />
+  if (media.kind === 'VIDEO')
+    return <video controls preload="none" className="preview" src={`/api/admin/media/${media.id}/file?variant=web`} poster={media.thumbnailFileId ? `/api/admin/media/${media.id}/file?variant=thumbnail` : undefined} />
   return (
     <a href={`/api/admin/media/${media.id}/file`} target="_blank" rel="noreferrer">{t('media.ouvrirLeDocument')}</a>
   )

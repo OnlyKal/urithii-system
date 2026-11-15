@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { open, unlink } from 'node:fs/promises';
+import { open, stat, unlink } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -171,6 +171,56 @@ export async function identifyUpload(filePath, originalName, declaredType) {
   return { mimeType: type, kind: format.kind, needsConversion };
 }
 
+// Image de couverture d'une vidéo : une image extraite vers la première
+// seconde (la toute première est souvent noire), en WebP 960 px. Elle sert de
+// vignette sur les cartes des fiches, la médiathèque et avant la lecture.
+export async function createVideoPoster(mediaId) {
+  const media = await prisma.mediaAsset.findUnique({ where: { id: mediaId }, include: { originalFile: true } });
+  if (!media?.originalFile || media.kind !== 'VIDEO' || media.thumbnailFileId) return;
+  const original = media.originalFile;
+  const frame = path.join(tempDir(), `${randomUUID()}.jpg`);
+  try {
+    const grab = (at) =>
+      promisify(execFile)(config.ffmpegPath, ['-nostdin', '-loglevel', 'error', '-y', '-ss', at, '-i', resolveKey(original.storageKey), '-frames:v', '1', '-q:v', '3', frame], {
+        timeout: 2 * 60 * 1000,
+      });
+    const hasFrame = () => stat(frame).then((st) => st.size > 0).catch(() => false);
+    await grab('1').catch(() => {});
+    // Vidéo trop courte : aucune image à 1 s, on prend la première.
+    if (!(await hasFrame())) await grab('0');
+    const buffer = await sharp(frame).resize({ width: 960, height: 960, fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+    const poster = await storeOriginal({
+      buffer,
+      originalName: `${original.originalName.replace(/\.[^.]+$/, '')}-couverture.webp`,
+      mimeType: 'image/webp',
+      uploadedById: original.uploadedById,
+      derivedFromId: original.id,
+      transformation: 'Image extraite de la vidéo (ffmpeg, vers 1 s), WebP 960 px max, qualité 80',
+    });
+    await prisma.mediaAsset.update({ where: { id: mediaId }, data: { thumbnailFileId: poster.id } });
+  } catch (err) {
+    console.error(`Couverture de la vidéo ${mediaId} impossible :`, err.message);
+  } finally {
+    await unlink(frame).catch(() => {});
+  }
+}
+
+// Traitements d'une vidéo après téléversement (en arrière-plan, l'un après
+// l'autre) : version de consultation si nécessaire, puis couverture.
+export async function processVideo(mediaId, needsConversion) {
+  if (!(await ffmpegAvailable())) return;
+  if (needsConversion) await createVideoDerivative(mediaId);
+  await createVideoPoster(mediaId);
+}
+
+// Couvertures des vidéos déjà en ligne (au démarrage du serveur).
+export async function backfillVideoPosters() {
+  if (!(await ffmpegAvailable())) return;
+  const videos = await prisma.mediaAsset.findMany({ where: { kind: 'VIDEO', thumbnailFileId: null }, select: { id: true } });
+  for (const v of videos) await createVideoPoster(v.id);
+  if (videos.length) console.log(`Couvertures vidéo générées : ${videos.length}`);
+}
+
 // Version de consultation d'une vidéo : H.264 + AAC, démarrage rapide
 // (« faststart »), dimensions paires. L'original reste intact.
 export async function createVideoDerivative(mediaId) {
@@ -281,7 +331,7 @@ export async function createMediaFromUpload({ file, metadata, user, ip }) {
       { timeout: 120_000 },
     ).then((media) => {
       // Conversion en arrière-plan : le téléversement n'attend pas.
-      if (needsConversion && !config.isTest) createVideoDerivative(media.id);
+      if (kind === 'VIDEO' && !config.isTest) processVideo(media.id, needsConversion);
       return media;
     });
   } finally {

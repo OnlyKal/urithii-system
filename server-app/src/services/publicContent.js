@@ -30,6 +30,8 @@ export function serializePublicMedia(media) {
     downloadUrl: media.publicationCleared ? `/api/public/media/${media.id}/file?download=1` : null,
     url: publicMediaUrl(media, media.kind === 'PHOTO' ? 'web' : undefined),
     thumbnailUrl: media.kind === 'PHOTO' ? publicMediaUrl(media, 'thumbnail') : null,
+    // Image de couverture d'une vidéo (extraite à l'envoi), sinon null.
+    posterUrl: media.kind === 'VIDEO' && media.thumbnailFileId ? publicMediaUrl(media, 'thumbnail') : null,
     mimeType: ['PHOTO', 'VIDEO'].includes(media.kind) && media.webFile ? media.webFile.mimeType : media.originalFile?.mimeType,
     texts: (media.texts ?? [])
       .filter((t) => t.isPublic)
@@ -157,16 +159,17 @@ export function publicItemCard(item, { cover = null, communities = [] } = {}) {
   };
 }
 
-// Cartes de fiches avec leur photographie de couverture (première photo
-// publique de la version publiée) et les noms des communautés, en deux
-// requêtes groupées.
+// Cartes de fiches avec leur image de couverture (première photo publique de
+// la version publiée, à défaut la couverture de sa première vidéo) et les
+// noms des communautés, en deux requêtes groupées.
+const visualWhere = { OR: [{ kind: 'PHOTO' }, { kind: 'VIDEO', thumbnailFileId: { not: null } }] };
 export async function toPublicCards(items) {
   const snapshots = new Map(items.map((i) => [i.id, parseJson(i.publishedVersion?.snapshot, {})]));
   const mediaIds = [...new Set([...snapshots.values()].flatMap((s) => (s.media ?? []).map((m) => m.mediaId)))];
   const communityIds = [...new Set([...snapshots.values()].flatMap((s) => s.communityIds ?? []))];
   const [photos, communities] = await Promise.all([
     mediaIds.length
-      ? prisma.mediaAsset.findMany({ where: { AND: [{ id: { in: mediaIds } }, { kind: 'PHOTO' }, publicMediaWhere()] }, select: { id: true, title: true } })
+      ? prisma.mediaAsset.findMany({ where: { AND: [{ id: { in: mediaIds } }, visualWhere, publicMediaWhere()] }, select: { id: true, title: true, kind: true } })
       : [],
     communityIds.length
       ? prisma.community.findMany({ where: { id: { in: communityIds } }, select: { id: true, name: true, slug: true, isPublished: true } })
@@ -176,9 +179,10 @@ export async function toPublicCards(items) {
   const communityById = new Map(communities.map((c) => [c.id, c]));
   return items.map((item) => {
     const snapshot = snapshots.get(item.id);
-    const photo = (snapshot.media ?? []).map((m) => photoById.get(m.mediaId)).find(Boolean);
+    const visuals = (snapshot.media ?? []).map((m) => photoById.get(m.mediaId)).filter(Boolean);
+    const photo = visuals.find((v) => v.kind === 'PHOTO') ?? visuals[0];
     return publicItemCard(item, {
-      cover: photo ? { url: publicMediaUrl(photo, 'thumbnail'), alt: photo.title } : null,
+      cover: photo ? { url: publicMediaUrl(photo, 'thumbnail'), alt: photo.title, video: photo.kind === 'VIDEO' } : null,
       communities: (snapshot.communityIds ?? [])
         .map((id) => communityById.get(id))
         .filter(Boolean)
@@ -190,18 +194,19 @@ export async function toPublicCards(items) {
 // Photographie représentative d'une communauté : première photo publique
 // d'un de ses contenus publiés.
 export async function communityCover(communityId) {
-  const photo = await prisma.mediaAsset.findFirst({
-    where: {
-      AND: [
-        { kind: 'PHOTO' },
-        publicMediaWhere(),
-        { items: { some: { item: { ...publicItemWhere, communities: { some: { communityId } } } } } },
-      ],
-    },
-    orderBy: { createdAt: 'asc' },
-    select: { id: true, title: true },
-  });
-  return photo ? { url: publicMediaUrl(photo, 'web'), thumbnailUrl: publicMediaUrl(photo, 'thumbnail'), alt: photo.title } : null;
+  const find = (kindWhere) =>
+    prisma.mediaAsset.findFirst({
+      where: {
+        AND: [kindWhere, publicMediaWhere(), { items: { some: { item: { ...publicItemWhere, communities: { some: { communityId } } } } } }],
+      },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, title: true, kind: true },
+    });
+  // Une photo d'abord ; à défaut, la couverture d'une vidéo.
+  const visual = (await find({ kind: 'PHOTO' })) ?? (await find({ kind: 'VIDEO', thumbnailFileId: { not: null } }));
+  if (!visual) return null;
+  const thumbnailUrl = publicMediaUrl(visual, 'thumbnail');
+  return { url: visual.kind === 'PHOTO' ? publicMediaUrl(visual, 'web') : thumbnailUrl, thumbnailUrl, alt: visual.title, video: visual.kind === 'VIDEO' };
 }
 
 export const publicCardSelect = {
@@ -235,7 +240,7 @@ export async function communityAuthorities(communityId) {
   const mediaIds = [...new Set(rows.flatMap((r) => (r.snapshot.media ?? []).map((m) => m.mediaId)))];
   const sourceIds = [...new Set(rows.flatMap((r) => (r.snapshot.sources ?? []).map((s) => s.sourceId)))];
   const [media, sources] = await Promise.all([
-    mediaIds.length ? prisma.mediaAsset.findMany({ where: { AND: [{ id: { in: mediaIds } }, publicMediaWhere()] }, select: { id: true, kind: true, title: true } }) : [],
+    mediaIds.length ? prisma.mediaAsset.findMany({ where: { AND: [{ id: { in: mediaIds } }, publicMediaWhere()] }, select: { id: true, kind: true, title: true, thumbnailFileId: true } }) : [],
     sourceIds.length ? prisma.source.findMany({ where: { id: { in: sourceIds }, isPublic: true }, select: { id: true, title: true, author: true, date: true, url: true } }) : [],
   ]);
   const mediaById = new Map(media.map((m) => [m.id, m]));
@@ -275,6 +280,7 @@ export async function communityAuthorities(communityId) {
           title: ref.title,
           caption,
           thumbnailUrl: ref.kind === 'PHOTO' ? publicMediaUrl(ref, 'thumbnail') : null,
+          posterUrl: ref.kind === 'VIDEO' && ref.thumbnailFileId ? publicMediaUrl(ref, 'thumbnail') : null,
         })),
       sources: (row.snapshot.sources ?? [])
         .map((s) => sourceById.get(s.sourceId))

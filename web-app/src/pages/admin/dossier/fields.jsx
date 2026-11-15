@@ -430,7 +430,7 @@ export function MediaRefs({ refs = [], onChange, ctx }) {
             const m = byId[r.mediaId]
             return (
               <li key={r.mediaId}>
-                {m?.kind === 'PHOTO' ? (
+                {m?.kind === 'PHOTO' || (m?.kind === 'VIDEO' && m.thumbnailFileId) ? (
                   <img src={`/api/admin/media/${r.mediaId}/file?variant=thumbnail`} alt="" className="thumb" loading="lazy" />
                 ) : (
                   <span className="thumb placeholder">{m ? MEDIA_KIND_LABELS[m.kind] : '?'}</span>

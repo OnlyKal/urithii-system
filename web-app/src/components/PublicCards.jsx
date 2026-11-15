@@ -11,6 +11,11 @@ function CardCover({ cover, icon: Icon = ImageOff }) {
   return (
     <div className="card-media">
       {cover ? <img src={cover.thumbnailUrl ?? cover.url} alt={cover.alt ?? ''} loading="lazy" /> : <Icon size={30} className="icon" aria-hidden="true" />}
+      {cover?.video && (
+        <span className="card-media-play" aria-hidden="true">
+          <Play size={18} fill="currentColor" />
+        </span>
+      )}
     </div>
   )
 }

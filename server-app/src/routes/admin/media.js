@@ -149,8 +149,9 @@ router.get('/:id/file', async (req, res) => {
   const variant = req.query.variant;
   const file =
     variant === 'web' ? media.webFile ?? media.originalFile
-    : variant === 'thumbnail' ? media.thumbnailFile ?? media.webFile ?? media.originalFile
+    : variant === 'thumbnail' ? media.thumbnailFile ?? (media.kind === 'VIDEO' ? null : media.webFile ?? media.originalFile)
     : media.originalFile;
+  if (!file) throw notFound('Couverture indisponible');
   if (variant === 'original' || variant === undefined) {
     await audit(req, 'MEDIA_ORIGINAL_ACCESSED', 'MediaAsset', media.id);
   }

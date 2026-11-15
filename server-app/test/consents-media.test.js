@@ -7,7 +7,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import sharp from 'sharp';
 import { config } from '../src/config.js';
-import { createVideoDerivative, ffmpegAvailable } from '../src/services/media.js';
+import { createVideoDerivative, createVideoPoster, ffmpegAvailable } from '../src/services/media.js';
 import { app, loginAs, prisma, request, resetDatabase, setupTeam, validateItem, withOrigin } from './helpers.js';
 
 beforeEach(resetDatabase);
@@ -248,6 +248,14 @@ describe('médias', () => {
     assert.equal(served.status, 200);
     assert.equal(served.headers['content-length'], String(media.webFile.sizeBytes));
     assert.notEqual(media.webFile.sha256, media.originalFile.sha256);
+    // Image de couverture extraite de la vidéo (WebP), servie comme miniature.
+    await createVideoPoster(media.id);
+    const withPoster = await prisma.mediaAsset.findUnique({ where: { id: media.id }, include: { thumbnailFile: true } });
+    assert.equal(withPoster.thumbnailFile?.mimeType, 'image/webp');
+    assert.equal(withPoster.thumbnailFile.derivedFromId, media.originalFile.id);
+    const poster = await ctx.agents.editeur.get(`/api/admin/media/${media.id}/file?variant=thumbnail`);
+    assert.equal(poster.status, 200);
+    assert.match(poster.headers['content-type'], /image\/webp/);
     await rm(dir, { recursive: true, force: true });
   });
 

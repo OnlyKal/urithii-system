@@ -153,7 +153,7 @@ export function MediaStep({ defs, data, ctx, updateSection, libraryKey }) {
             const inEntries = used.filter((u) => u.ref.mediaId === id && u.entry)
             return (
               <article key={id} className="library-card">
-                {m?.kind === 'PHOTO' ? (
+                {m?.kind === 'PHOTO' || (m?.kind === 'VIDEO' && m.thumbnailFileId) ? (
                   <img src={`/api/admin/media/${id}/file?variant=thumbnail`} alt="" className="thumb" loading="lazy" />
                 ) : (
                   <span className="thumb placeholder">{m ? MEDIA_KIND_LABELS[m.kind] : '?'}</span>

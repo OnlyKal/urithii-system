@@ -609,9 +609,11 @@ router.get('/media/:id/file', async (req, res) => {
   const download = req.query.download === '1' && media.publicationCleared;
   // Photos et vidéos : version de consultation si elle existe (WebP, H.264) ;
   // le téléchargement donne toujours l'original.
+  // Vidéo : la miniature est son image de couverture (aucune sinon).
+  if (media.kind === 'VIDEO' && req.query.variant === 'thumbnail' && !media.thumbnailFile) throw notFound('Couverture indisponible');
   const file = download
     ? media.originalFile
-    : media.kind === 'PHOTO' && req.query.variant === 'thumbnail'
+    : ['PHOTO', 'VIDEO'].includes(media.kind) && req.query.variant === 'thumbnail'
       ? media.thumbnailFile ?? media.webFile ?? media.originalFile
       : ['PHOTO', 'VIDEO'].includes(media.kind)
         ? media.webFile ?? media.originalFile

@@ -598,7 +598,7 @@ export default function ItemDetailPage() {
               <div className="media-grid">
                 {item.media.map((m) => (
                   <Link key={m.mediaId} to={`/admin/medias/${m.mediaId}`} className="media-card">
-                    {m.media.kind === 'PHOTO' ? (
+                    {m.media.kind === 'PHOTO' || (m.media.kind === 'VIDEO' && m.media.thumbnailFileId) ? (
                       <img src={`/api/admin/media/${m.mediaId}/file?variant=thumbnail`} alt={m.media.title} className="thumb" loading="lazy" />
                     ) : (
                       <span className="thumb placeholder">{MEDIA_KIND_LABELS[m.media.kind]}</span>
