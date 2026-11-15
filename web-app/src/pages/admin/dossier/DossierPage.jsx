@@ -593,7 +593,7 @@ export default function DossierPage() {
         <Link to="/admin/collectes">{t('dossier.retourCollectes')}</Link>
       </p>
       <div className="page-head dossier-head">
-        <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ minWidth: 0, flex: '1 1 18rem' }}>
           {canEdit ? (
             <input
               className="title-input"

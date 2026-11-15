@@ -1,7 +1,7 @@
 import { AlertTriangle, BookMarked, Calendar, CheckCircle2, Flag, History, Info, Languages, Link2, ListTree, MapPin, MessageSquareQuote, Users } from 'lucide-react'
 import { Link, useParams } from 'react-router'
 import Prose from '../../components/Prose.jsx'
-import { ContentVersionHistory, MediaCard, SourceReference } from '../../components/PublicCards.jsx'
+import { MediaCard, SourceReference } from '../../components/PublicCards.jsx'
 import { Breadcrumbs, Loading, useApi } from '../../components/ui.jsx'
 import { formatDate, formatItemDate, PLACE_TYPE_LABELS, RELATION_LABELS, VERIFICATION_HELP, VERIFICATION_LABELS } from '../../labels.js'
 import { t } from '../../i18n/index.js'
@@ -34,7 +34,6 @@ export default function ItemPage() {
     variants.length > 0 && ['variantes', t('item.variantes')],
     related.length > 0 && ['associes', t('item.contenusAssocies')],
     ['sources', t('common.sources')],
-    ['historique', t('item.historique')],
   ].filter(Boolean)
 
   return (
@@ -172,12 +171,6 @@ export default function ItemPage() {
               <p className="muted small" style={{ marginTop: '0.75rem' }}>
                 {item.sources.length > 0 ? t('item.dAutresSources') : t('item.lesSourcesDeCeContenu')}{' '}{t('item.sontConserveesParUrithiMais')}</p>
             )}
-          </section>
-
-          <section id="historique">
-            <h2>
-              <History size={20} className="icon icon-blue" aria-hidden="true" />{t('item.historique')}</h2>
-            <ContentVersionHistory history={item.history} publishedAt={item.publishedAt} />
           </section>
 
           <p className="small muted">

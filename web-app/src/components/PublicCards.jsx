@@ -250,23 +250,3 @@ export function SourceReference({ source }) {
     </li>
   )
 }
-
-export function ContentVersionHistory({ history, publishedAt }) {
-  return (
-    <ol className="version-history">
-      {history.map((h) => (
-        <li key={h.version}>
-          <strong>{t('common.version')}{' '}{h.version}</strong>
-          <time dateTime={h.publishedAt}>{formatDate(h.publishedAt)}</time>
-          {h.publicNote && <div className="muted">{h.publicNote}</div>}
-        </li>
-      ))}
-      {history.length === 0 && publishedAt && (
-        <li>
-          <strong>{t('publicCards.publication')}</strong>
-          <time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
-        </li>
-      )}
-    </ol>
-  )
-}
